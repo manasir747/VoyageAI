@@ -1,0 +1,7 @@
+.next
+coverage
+dist
+build
+node_modules
+.venv
+__pycache__

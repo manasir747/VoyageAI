@@ -1,0 +1,445 @@
+erDiagram
+  auth_users {
+    uuid id PK
+  }
+
+  countries {
+    uuid id PK
+    text iso2 UK
+    text iso3 UK
+    text numeric_code UK
+  }
+
+  currencies {
+    uuid id PK
+    text iso_code UK
+    int numeric_code UK
+  }
+
+  languages {
+    uuid id PK
+    text iso639_1 UK
+    text iso639_3 UK
+  }
+
+  places {
+    uuid id PK
+    uuid country_id FK
+  }
+
+  airports {
+    uuid id PK
+    uuid place_id FK
+    uuid country_id FK
+    text iata_code UK
+    text icao_code UK
+  }
+
+  airlines {
+    uuid id PK
+    uuid country_id FK
+    text iata_code UK
+    text icao_code UK
+  }
+
+  hotels {
+    uuid id PK
+    uuid place_id FK
+    uuid country_id FK
+  }
+
+  expense_categories {
+    uuid id PK
+    uuid parent_category_id FK
+  }
+
+  profiles {
+    uuid id PK,FK
+    uuid nationality_country_id FK
+    uuid preferred_currency_id FK
+    uuid preferred_language_id FK
+  }
+
+  linked_accounts {
+    uuid id PK
+    uuid user_id FK
+  }
+
+  user_sessions {
+    uuid id PK
+    uuid user_id FK
+  }
+
+  notification_preferences {
+    uuid id PK
+    uuid user_id FK
+  }
+
+  trips {
+    uuid id PK
+    uuid owner_user_id FK
+    uuid origin_country_id FK
+    uuid destination_country_id FK
+    uuid primary_language_id FK
+  }
+
+  trip_destinations {
+    uuid id PK
+    uuid trip_id FK
+    uuid place_id FK
+  }
+
+  trip_budgets {
+    uuid id PK
+    uuid trip_id FK
+    uuid currency_id FK
+  }
+
+  trip_expenses {
+    uuid id PK
+    uuid trip_id FK
+    uuid expense_category_id FK
+    uuid currency_id FK
+    uuid booking_id FK
+    uuid receipt_document_id FK
+  }
+
+  search_history {
+    uuid id PK
+    uuid user_id FK
+    uuid trip_id FK
+  }
+
+  wishlists {
+    uuid id PK
+    uuid user_id FK
+  }
+
+  wishlist_items {
+    uuid id PK
+    uuid wishlist_id FK
+    uuid place_id FK
+    uuid hotel_id FK
+    uuid airport_id FK
+    uuid airline_id FK
+    uuid trip_id FK
+  }
+
+  emergency_contacts {
+    uuid id PK
+    uuid user_id FK
+    uuid trip_id FK
+  }
+
+  saved_places {
+    uuid id PK
+    uuid user_id FK
+    uuid place_id FK
+    uuid trip_id FK
+  }
+
+  itineraries {
+    uuid id PK
+    uuid trip_id FK
+  }
+
+  itinerary_days {
+    uuid id PK
+    uuid itinerary_id FK
+  }
+
+  itinerary_items {
+    uuid id PK
+    uuid itinerary_day_id FK
+    uuid place_id FK
+    uuid booking_id FK
+  }
+
+  checklists {
+    uuid id PK
+    uuid trip_id FK
+    uuid user_id FK
+  }
+
+  checklist_items {
+    uuid id PK
+    uuid checklist_id FK
+    uuid parent_item_id FK
+  }
+
+  documents {
+    uuid id PK
+    uuid owner_user_id FK
+    uuid trip_id FK
+    uuid booking_id FK
+  }
+
+  bookings {
+    uuid id PK
+    uuid user_id FK
+    uuid trip_id FK
+    uuid currency_id FK
+  }
+
+  flight_bookings {
+    uuid booking_id PK,FK
+    uuid airline_id FK
+  }
+
+  hotel_bookings {
+    uuid booking_id PK,FK
+    uuid hotel_id FK
+  }
+
+  flight_segments {
+    uuid id PK
+    uuid trip_id FK
+    uuid booking_id FK
+    uuid airline_id FK
+    uuid departure_airport_id FK
+    uuid arrival_airport_id FK
+  }
+
+  booking_status_history {
+    uuid id PK
+    uuid booking_id FK
+    uuid changed_by_user_id FK
+  }
+
+  agent_templates {
+    uuid id PK
+  }
+
+  ai_agents {
+    uuid id PK
+    uuid owner_user_id FK
+    uuid template_id FK
+  }
+
+  agent_workflows {
+    uuid id PK
+    uuid owner_user_id FK
+  }
+
+  agent_workflow_steps {
+    uuid id PK
+    uuid workflow_id FK
+    uuid agent_id FK
+    uuid template_id FK
+    uuid depends_on_step_id FK
+  }
+
+  agent_workflow_runs {
+    uuid id PK
+    uuid workflow_id FK
+    uuid root_conversation_id FK
+  }
+
+  ai_conversations {
+    uuid id PK
+    uuid user_id FK
+    uuid agent_id FK
+    uuid workflow_run_id FK
+    uuid trip_id FK
+  }
+
+  ai_messages {
+    uuid id PK
+    uuid conversation_id FK
+  }
+
+  ai_memory_items {
+    uuid id PK
+    uuid user_id FK
+    uuid agent_id FK
+    uuid conversation_id FK
+  }
+
+  ai_tasks {
+    uuid id PK
+    uuid user_id FK
+    uuid agent_id FK
+    uuid conversation_id FK
+  }
+
+  ai_execution_history {
+    uuid id PK
+    uuid task_id FK
+    uuid agent_id FK
+    uuid conversation_id FK
+    uuid workflow_run_id FK
+  }
+
+  tool_call_history {
+    uuid id PK
+    uuid agent_id FK
+    uuid conversation_id FK
+    uuid workflow_run_id FK
+    uuid task_id FK
+    uuid provider_config_id FK
+  }
+
+  recommendation_history {
+    uuid id PK
+    uuid user_id FK
+    uuid agent_id FK
+    uuid conversation_id FK
+  }
+
+  ai_feedback {
+    uuid id PK
+    uuid user_id FK
+    uuid agent_id FK
+    uuid conversation_id FK
+  }
+
+  shared_trips {
+    uuid id PK
+    uuid trip_id FK
+    uuid owner_user_id FK
+  }
+
+  shared_trip_invites {
+    uuid id PK
+    uuid shared_trip_id FK
+    uuid invited_by_user_id FK
+    uuid invitee_user_id FK
+  }
+
+  shared_trip_members {
+    uuid id PK
+    uuid shared_trip_id FK
+    uuid user_id FK
+  }
+
+  provider_configs {
+    uuid id PK
+  }
+
+  notifications {
+    uuid id PK
+    uuid user_id FK
+  }
+
+  notification_deliveries {
+    uuid id PK
+    uuid notification_id FK
+    uuid user_id FK
+  }
+
+  audit_log_entries {
+    uuid id PK
+    uuid actor_user_id FK
+  }
+
+  system_logs {
+    uuid id PK
+  }
+
+  analytics_events {
+    uuid id PK
+    uuid user_id FK
+  }
+
+  analytics_daily_rollups {
+    uuid id PK
+  }
+
+  admin_roles {
+    uuid id PK
+  }
+
+  user_roles {
+    uuid id PK
+    uuid user_id FK
+    uuid role_id FK
+    uuid assigned_by_user_id FK
+  }
+
+  countries ||--o{ airports : contains
+  countries ||--o{ airlines : registers
+  countries ||--o{ hotels : hosts
+  countries ||--o{ profiles : nationality
+  countries ||--o{ trips : origin_destination
+  countries ||--o{ places : location
+
+  currencies ||--o{ profiles : preferred_currency
+  currencies ||--o{ trips : budget_currency
+  currencies ||--o{ trip_budgets : denominates
+  currencies ||--o{ trip_expenses : denominates
+  currencies ||--o{ bookings : transaction_currency
+
+  languages ||--o{ profiles : preferred_language
+  languages ||--o{ trips : primary_language
+
+  auth_users ||--|| profiles : owns
+  auth_users ||--o{ linked_accounts : links
+  auth_users ||--o{ user_sessions : logs
+  auth_users ||--o{ notification_preferences : configures
+  auth_users ||--o{ trips : owns
+  auth_users ||--o{ wishlists : owns
+  auth_users ||--o{ saved_places : saves
+  auth_users ||--o{ emergency_contacts : defines
+  auth_users ||--o{ ai_agents : owns
+  auth_users ||--o{ ai_conversations : starts
+  auth_users ||--o{ ai_tasks : schedules
+  auth_users ||--o{ reviews : writes
+  auth_users ||--o{ shared_trips : owns
+
+  places ||--o{ airports : subtype
+  places ||--o{ hotels : subtype
+  places ||--o{ trip_destinations : destination
+  places ||--o{ saved_places : saved_target
+
+  trips ||--o{ trip_destinations : contains
+  trips ||--o{ trip_budgets : budgets
+  trips ||--o{ trip_expenses : expenses
+  trips ||--o{ itineraries : has
+  trips ||--o{ checklists : has
+  trips ||--o{ documents : attaches
+  trips ||--o{ bookings : includes
+  trips ||--o{ search_history : searched
+  trips ||--o{ shared_trips : shared_root
+
+  bookings ||--o{ flight_bookings : subtype
+  bookings ||--o{ hotel_bookings : subtype
+  bookings ||--o{ flight_segments : segments
+  bookings ||--o{ booking_status_history : history
+  bookings ||--o{ trip_expenses : referenced_by_expense
+
+  itineraries ||--o{ itinerary_days : contains
+  itinerary_days ||--o{ itinerary_items : contains
+  checklists ||--o{ checklist_items : contains
+
+  ai_agents ||--o{ ai_conversations : drives
+  ai_agents ||--o{ ai_tasks : executes
+  ai_agents ||--o{ ai_memory_items : stores
+  ai_agents ||--o{ agent_workflow_steps : participates
+  ai_agents ||--o{ tool_call_history : triggers
+  ai_agents ||--o{ recommendation_history : suggests
+  ai_agents ||--o{ ai_feedback : receives
+
+  agent_templates ||--o{ ai_agents : instantiates
+  agent_templates ||--o{ agent_workflow_steps : step_template
+  agent_workflows ||--o{ agent_workflow_steps : defines
+  agent_workflows ||--o{ agent_workflow_runs : executes
+  agent_workflow_runs ||--o{ ai_conversations : roots
+
+  ai_conversations ||--o{ ai_messages : contains
+  ai_conversations ||--o{ ai_memory_items : contextualizes
+  ai_conversations ||--o{ ai_tasks : drives
+  ai_conversations ||--o{ ai_execution_history : logs
+  ai_conversations ||--o{ tool_call_history : emits
+  ai_conversations ||--o{ recommendation_history : records
+  ai_conversations ||--o{ ai_feedback : receives
+
+  shared_trips ||--o{ shared_trip_invites : invites
+  shared_trips ||--o{ shared_trip_members : grants
+
+  provider_configs ||--o{ ai_agents : provider_source
+  provider_configs ||--o{ tool_call_history : provider_source
+  provider_configs ||--o{ bookings : integration_source
+
+  notifications ||--o{ notification_deliveries : delivers
+  audit_log_entries }o--|| profiles : actor
+  analytics_events }o--|| profiles : attributed_user
