@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   PageWrapper,
   Navbar,
@@ -12,7 +14,7 @@ import {
   Section,
   Footer,
 } from "@/components/layout/layout";
-import { Fade, Stagger, ScrollReveal } from "@/components/motion/motion";
+import { Fade, Stagger, ScrollReveal, FloatingElements } from "@/components/motion/motion";
 import { ThemeToggle } from "@/theme/theme-toggle";
 import { FeatureCard, GlassCard, Card } from "@/components/ui/card";
 import {
@@ -27,9 +29,6 @@ import {
   Check,
 } from "lucide-react";
 
-const FloatingOrb = dynamic(() => import("@/components/three/three").then((m) => m.FloatingOrb), {
-  ssr: false,
-});
 const GlowBackground = dynamic(
   () => import("@/components/three/three").then((m) => m.GlowBackground),
   { ssr: false },
@@ -43,39 +42,48 @@ export default function LandingPage() {
     </div>
   );
 
+  const [activePath, setActivePath] = useState("#home");
+
+  const NAV_ITEMS = [
+    { href: "#home", label: "Home" },
+    { href: "#features", label: "Features" },
+    { href: "#how-it-works", label: "How It Works" },
+    { href: "#pricing", label: "Pricing" },
+    { href: "#about", label: "About" },
+  ];
+
   const navLinks = (
-    <>
-      <a
-        href="#home"
-        className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-      >
-        Home
-      </a>
-      <a
-        href="#features"
-        className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-      >
-        Features
-      </a>
-      <a
-        href="#how-it-works"
-        className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-      >
-        How It Works
-      </a>
-      <a
-        href="#pricing"
-        className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-      >
-        Pricing
-      </a>
-      <a
-        href="#about"
-        className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-      >
-        About
-      </a>
-    </>
+    <div
+      className="rounded-pill border-border/60 bg-glass/80 shadow-glass inline-flex items-center border p-1 backdrop-blur-xl"
+      role="navigation"
+      aria-label="Main Navigation"
+    >
+      {NAV_ITEMS.map((link) => {
+        const isActive = activePath === link.href;
+        return (
+          <a
+            key={link.href}
+            href={link.href}
+            onClick={() => setActivePath(link.href)}
+            className={cn(
+              "rounded-pill relative isolate flex cursor-pointer items-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-300",
+              isActive
+                ? "text-foreground"
+                : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
+            )}
+          >
+            {isActive ? (
+              <motion.span
+                layoutId="nav-pill"
+                className="rounded-pill border-border/40 bg-background shadow-medium absolute inset-0 -z-10 border"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            ) : null}
+            <span className="relative z-10">{link.label}</span>
+          </a>
+        );
+      })}
+    </div>
   );
 
   const actions = (
@@ -158,9 +166,109 @@ export default function LandingPage() {
               </div>
 
               <div className="col-span-12 hidden lg:col-span-6 lg:block">
-                <Fade delay={0.4}>
-                  <div className="relative aspect-square w-full">
-                    <FloatingOrb />
+                <Fade delay={0.4} className="h-full">
+                  <div className="relative h-full min-h-[500px] w-full lg:min-h-[600px]">
+                    <div className="bg-primary/5 absolute inset-0 rounded-full opacity-50 blur-3xl" />
+
+                    <FloatingElements
+                      amplitude={10}
+                      className="absolute left-0 top-[10%] z-20 w-[280px]"
+                    >
+                      <GlassCard className="flex items-center gap-4 p-4">
+                        <div className="bg-primary/20 rounded-xl p-3">
+                          <Plane className="text-primary size-5" />
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                            Flight Alert
+                          </p>
+                          <p className="text-sm font-semibold">NYC → TYO • $450</p>
+                        </div>
+                      </GlassCard>
+                    </FloatingElements>
+
+                    <FloatingElements
+                      amplitude={15}
+                      className="absolute right-0 top-[25%] z-10 w-[260px]"
+                    >
+                      <GlassCard className="flex items-center gap-4 p-4">
+                        <div className="bg-accent/20 rounded-xl p-3">
+                          <Hotel className="text-accent size-5" />
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                            Top Match
+                          </p>
+                          <p className="text-sm font-semibold">Aman Tokyo</p>
+                        </div>
+                      </GlassCard>
+                    </FloatingElements>
+
+                    <FloatingElements
+                      amplitude={8}
+                      className="absolute left-1/2 top-1/2 z-20 w-[340px] -translate-x-1/2 -translate-y-1/2"
+                    >
+                      <Card className="border-primary/50 shadow-glow p-6">
+                        <div className="mb-4 flex items-center justify-between">
+                          <h3 className="font-semibold">Japan Explorer</h3>
+                          <span className="bg-primary/10 text-primary rounded-pill px-2 py-1 text-xs font-bold">
+                            14 Days
+                          </span>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-muted flex size-8 items-center justify-center rounded-full text-xs">
+                              Day 1
+                            </div>
+                            <p className="text-sm">Arrive in Tokyo, Shinjuku</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="bg-muted flex size-8 items-center justify-center rounded-full text-xs">
+                              Day 2
+                            </div>
+                            <p className="text-sm">Tsukiji & TeamLab Borderless</p>
+                          </div>
+                          <div className="flex items-center gap-3 opacity-50">
+                            <div className="bg-muted flex size-8 items-center justify-center rounded-full text-xs">
+                              Day 3
+                            </div>
+                            <p className="text-sm">Mt. Fuji Day Trip</p>
+                          </div>
+                        </div>
+                        <Button variant="default" className="mt-6 h-10 w-full">
+                          View Full Itinerary
+                        </Button>
+                      </Card>
+                    </FloatingElements>
+
+                    <FloatingElements
+                      amplitude={12}
+                      className="absolute bottom-[15%] left-[5%] z-10 w-[220px]"
+                    >
+                      <GlassCard className="p-4">
+                        <div className="mb-2 flex items-center gap-3">
+                          <div className="bg-success/20 rounded-lg p-2">
+                            <Wallet className="text-success size-4" />
+                          </div>
+                          <p className="text-muted-foreground text-xs font-medium">Est. Budget</p>
+                        </div>
+                        <p className="text-2xl font-bold">$3,250</p>
+                        <p className="text-success mt-1 text-xs">Within goal</p>
+                      </GlassCard>
+                    </FloatingElements>
+
+                    <FloatingElements
+                      amplitude={6}
+                      className="absolute bottom-[20%] right-[5%] z-30"
+                    >
+                      <div className="border-border/60 bg-background/90 shadow-medium rounded-pill inline-flex items-center border px-4 py-2 backdrop-blur-xl">
+                        <span className="relative mr-3 flex size-2">
+                          <span className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"></span>
+                          <span className="bg-primary relative inline-flex size-2 rounded-full"></span>
+                        </span>
+                        <span className="text-sm font-medium">AI Optimizing Routes...</span>
+                      </div>
+                    </FloatingElements>
                   </div>
                 </Fade>
               </div>

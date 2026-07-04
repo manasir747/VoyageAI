@@ -17,7 +17,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-pill border border-border/60 bg-glass/80 p-1 text-sm shadow-glass backdrop-blur-xl",
+        "rounded-pill border-border/60 bg-glass/80 shadow-glass inline-flex items-center border p-1 text-sm backdrop-blur-xl",
         className,
       )}
       role="tablist"
@@ -35,15 +35,17 @@ export function ThemeToggle({ className }: { className?: string }) {
             aria-selected={active}
             onClick={() => setTheme(option.value)}
             className={cn(
-              "relative isolate flex items-center gap-2 rounded-pill px-3 py-2 text-xs font-medium transition-colors",
-              active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+              "rounded-pill relative isolate flex cursor-pointer items-center gap-2 px-3 py-2 text-xs font-medium transition-all duration-300",
+              active
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
             )}
           >
             {active ? (
               <motion.span
                 layoutId="voyageai-theme-toggle-pill"
-                className="absolute inset-0 -z-10 rounded-pill bg-background/90 shadow-soft"
-                transition={{ type: "spring", stiffness: 500, damping: 36 }}
+                className="rounded-pill bg-background shadow-medium border-border/40 absolute inset-0 -z-10 border"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             ) : null}
             <AnimatePresence initial={false} mode="wait">
