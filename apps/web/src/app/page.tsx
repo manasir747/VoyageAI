@@ -27,7 +27,10 @@ import {
   Star,
   MapPin,
   Check,
+  Menu,
 } from "lucide-react";
+import Link from "next/link";
+import { Sheet, DrawerContent } from "@/components/ui/overlays";
 
 const GlowBackground = dynamic(
   () => import("@/components/three/three").then((m) => m.GlowBackground),
@@ -43,6 +46,7 @@ export default function LandingPage() {
   );
 
   const [activePath, setActivePath] = useState("#home");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const NAV_ITEMS = [
     { href: "#home", label: "Home" },
@@ -87,10 +91,72 @@ export default function LandingPage() {
   );
 
   const actions = (
-    <>
+    <div className="flex items-center gap-2">
       <ThemeToggle className="hidden sm:inline-flex" />
-      <Button variant="default">Plan My Trip</Button>
-    </>
+
+      <div className="hidden items-center gap-2 md:flex">
+        <Button asChild variant="ghost" className="rounded-full">
+          <Link href="/sign-in">Sign In</Link>
+        </Button>
+        <Button
+          asChild
+          variant="default"
+          className="from-primary to-accent shadow-glow rounded-full border-none bg-gradient-to-r transition-opacity hover:opacity-90"
+        >
+          <Link href="/sign-up">Sign Up</Link>
+        </Button>
+      </div>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="rounded-full md:hidden"
+        onClick={() => setIsMobileMenuOpen(true)}
+      >
+        <Menu className="size-5" />
+      </Button>
+
+      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <DrawerContent side="right">
+          <div className="flex flex-col gap-6 pt-10">
+            <div className="flex flex-col gap-2">
+              {NAV_ITEMS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => {
+                    setActivePath(link.href);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-foreground hover:bg-muted/40 rounded-xl px-4 py-3 text-lg font-medium transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+
+            <div className="bg-border/60 my-2 h-px" />
+
+            <div className="flex flex-col gap-3 px-2">
+              <Button asChild variant="outline" className="h-12 w-full justify-center text-base">
+                <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)}>
+                  Sign In
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="default"
+                className="from-primary to-accent shadow-glow text-primary-foreground h-12 w-full justify-center border-none bg-gradient-to-r text-base"
+              >
+                <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)}>
+                  Sign Up
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Sheet>
+    </div>
   );
 
   const footerLinks = (
