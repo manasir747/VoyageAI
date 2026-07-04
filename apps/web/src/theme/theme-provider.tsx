@@ -44,15 +44,14 @@ export function ThemeProvider({
     const storedTheme = window.localStorage.getItem(storageKey) as ThemeMode | null;
     const initialTheme = storedTheme ?? defaultTheme;
     setThemeState(initialTheme);
+  }, [defaultTheme, storageKey]);
 
-    const systemTheme = getSystemTheme();
-    setResolvedTheme(initialTheme === "system" ? systemTheme : initialTheme);
-
+  useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = () => {
-      const nextSystemTheme = getSystemTheme();
-      setResolvedTheme((current) => (theme === "system" ? nextSystemTheme : current));
       if (theme === "system") {
+        const nextSystemTheme = getSystemTheme();
+        setResolvedTheme(nextSystemTheme);
         applyTheme(nextSystemTheme);
       }
     };
@@ -62,7 +61,7 @@ export function ThemeProvider({
     return () => {
       media.removeEventListener("change", handleChange);
     };
-  }, [defaultTheme, storageKey, theme]);
+  }, [theme]);
 
   useEffect(() => {
     const nextResolvedTheme = theme === "system" ? getSystemTheme() : theme;
