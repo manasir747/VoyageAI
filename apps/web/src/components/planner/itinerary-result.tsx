@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import { AICard, DestinationCard, GlassCard } from "@/components/ui/card";
-import { Fade, Stagger, Reveal } from "@/components/motion/motion";
+import React, { useState } from "react";
+import { InteractiveCard, GlassCard } from "@/components/ui/card";
+import { Reveal } from "@/components/motion/motion";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/overlays";
 import {
   Plane,
   Hotel,
@@ -14,269 +15,391 @@ import {
   Sun,
   Sunset,
   Moon,
+  ChevronDown,
+  ChevronUp,
+  Star,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TripPlanResponse } from "@/types/planner";
 
-export function ItineraryResult({ data }: { data: TripPlanResponse }) {
-  // Helper to determine icon based on time/activity
+const truncateWords = (str: string, max: number) => {
+  if (!str) return "";
+  const words = str.split(" ");
+  if (words.length <= max) return str;
+  return words.slice(0, max).join(" ") + "...";
+};
+
+const ActivityCard = ({ act, isLast }: { act: any; isLast: boolean }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const getTimeIcon = (time?: string) => {
-    if (!time) return <MapPin className="text-primary size-4" />;
+    if (!time) return <MapPin className="text-primary size-3.5" />;
     const hour = parseInt(time.split(":")[0] || "12");
-    if (hour < 12) return <Sun className="text-warning size-4" />;
-    if (hour < 17) return <Sun className="size-4 text-orange-400" />;
-    if (hour < 20) return <Sunset className="text-destructive size-4" />;
-    return <Moon className="size-4 text-indigo-400" />;
+    if (hour < 12) return <Sun className="text-warning size-3.5" />;
+    if (hour < 17) return <Sun className="size-3.5 text-orange-400" />;
+    if (hour < 20) return <Sunset className="text-destructive size-3.5" />;
+    return <Moon className="size-3.5 text-indigo-400" />;
   };
 
+  const wordCount = act.description ? act.description.split(" ").length : 0;
+  const isLongText = wordCount > 40;
+
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col pb-12">
-      {/* Sticky Header */}
-      <div className="bg-background/95 border-border/50 sticky top-0 z-20 -mx-2 mb-8 border-b px-2 pb-4 pt-4 backdrop-blur-xl">
-        <Reveal>
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <div className="text-primary mb-1 flex items-center gap-2 text-xs font-medium uppercase tracking-wider">
-                <Sparkles className="size-4" />
-                <span>AI Generated Itinerary</span>
-              </div>
-              <h2 className="font-display text-2xl font-bold tracking-tight md:text-3xl">
-                Trip to {data.destination}
-              </h2>
-            </div>
-            <div className="flex shrink-0 gap-2">
-              <Button variant="outline" size="sm">
-                Save Trip
-              </Button>
-              <Button variant="default" size="sm" className="shadow-glow">
-                Export to Maps
-              </Button>
-            </div>
-          </div>
-        </Reveal>
+    <div className="group flex gap-4">
+      <div className="flex shrink-0 flex-col items-center gap-1 pt-1">
+        <div className="bg-background border-border/50 group-hover:border-primary/40 relative z-10 flex h-8 w-8 items-center justify-center rounded-full border shadow-sm transition-colors">
+          {getTimeIcon(act.meta)}
+        </div>
+        {!isLast && (
+          <div className="bg-border/40 group-hover:bg-primary/20 h-full w-[1px] transition-colors" />
+        )}
       </div>
 
-      <div className="flex flex-col gap-10">
-        {/* Overview Block */}
-        <Reveal>
-          <div className="bg-primary/5 border-primary/20 relative overflow-hidden rounded-2xl border p-6">
-            <div className="bg-primary/10 absolute right-0 top-0 h-64 w-64 -translate-y-1/2 translate-x-1/3 rounded-full blur-3xl" />
-            <p className="text-foreground/90 relative z-10 text-lg leading-relaxed">
-              {data.overview}
-            </p>
+      <div className="w-full pb-6">
+        <div className="mb-1 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3">
+            {act.meta && (
+              <span className="text-foreground/70 text-[11px] font-bold">{act.meta}</span>
+            )}
+            <h5 className="text-foreground text-base font-semibold leading-tight">{act.title}</h5>
           </div>
-        </Reveal>
-
-        {/* Stats Row */}
-        <Stagger className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <GlassCard className="flex flex-col justify-between gap-4 p-5">
-            <div className="text-muted-foreground flex items-center gap-2">
-              <Wallet className="size-4" />
-              <span className="text-sm font-medium">Estimated Budget</span>
-            </div>
-            <div>
-              <div className="font-display break-words text-2xl font-bold sm:text-3xl">
-                {data.budgetSummary.total}
-              </div>
-              <div className="text-success mt-1 text-xs font-medium">
-                {data.budgetSummary.trend}
-              </div>
-            </div>
-          </GlassCard>
-
-          <GlassCard className="flex flex-col justify-between gap-4 p-5">
-            <div className="text-muted-foreground flex items-center gap-2">
-              <Clock className="size-4" />
-              <span className="text-sm font-medium">Travel Time</span>
-            </div>
-            <div>
-              <div className="font-display text-2xl font-bold sm:text-3xl">
-                {data.budgetSummary.travelTime}
-              </div>
-              <div className="text-muted-foreground mt-1 text-xs font-medium">
-                Total transit duration
-              </div>
-            </div>
-          </GlassCard>
-
-          <GlassCard className="flex flex-col justify-between gap-4 p-5">
-            <div className="text-muted-foreground flex items-center gap-2">
-              <MapPin className="size-4" />
-              <span className="text-sm font-medium">Activities</span>
-            </div>
-            <div>
-              <div className="font-display text-2xl font-bold sm:text-3xl">
-                {data.budgetSummary.activitiesCount}
-              </div>
-              <div className="text-muted-foreground mt-1 text-xs font-medium">
-                Planned destinations
-              </div>
-            </div>
-          </GlassCard>
-        </Stagger>
-
-        {/* Flights */}
-        {data.flights.length > 0 && (
-          <Reveal delay={0.15}>
-            <div className="space-y-4">
-              <h3 className="flex items-center gap-2 text-xl font-semibold">
-                <Plane className="text-primary size-5" /> Recommended Flights
-              </h3>
-              <div className="grid grid-cols-1 gap-3">
-                {data.flights.map((flight, idx: number) => (
-                  <GlassCard
-                    key={idx}
-                    className="border-l-primary hover:bg-muted/30 flex flex-col justify-between gap-4 border-l-4 p-4 transition-colors sm:flex-row sm:items-center"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="bg-primary/10 text-primary shrink-0 rounded-full p-3">
-                        <Plane className="size-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold">{flight.airline}</h4>
-                        <p className="text-muted-foreground text-sm">{flight.route}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex w-full items-center justify-between gap-6 sm:w-auto sm:justify-end">
-                      {flight.meta && (
-                        <div className="bg-secondary text-secondary-foreground rounded-md px-2 py-1 text-xs font-medium">
-                          {flight.meta}
-                        </div>
-                      )}
-                      <div className="text-lg font-bold">{flight.price}</div>
-                      <Button size="sm" variant="default">
-                        Book
-                      </Button>
-                    </div>
-                  </GlassCard>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        )}
-
-        {/* Hotels */}
-        {data.hotels.length > 0 && (
-          <Reveal delay={0.2}>
-            <div className="space-y-4">
-              <h3 className="flex items-center gap-2 text-xl font-semibold">
-                <Hotel className="text-primary size-5" /> Recommended Stays
-              </h3>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {data.hotels.map((hotel, idx: number) => (
-                  <DestinationCard
-                    key={idx}
-                    name={hotel.name}
-                    location={hotel.location}
-                    meta={hotel.meta}
-                    action={
-                      hotel.bestMatch ? (
-                        <span className="bg-success/20 text-success rounded-md px-2 py-1 text-xs font-medium">
-                          Best Match
-                        </span>
-                      ) : undefined
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        )}
-
-        {/* Daily Itinerary */}
-        <div className="mt-4 space-y-6">
-          <h3 className="font-display border-border/50 flex items-center gap-2 border-b pb-4 text-2xl font-bold">
-            <MapPin className="text-primary size-6" /> Detailed Itinerary
-          </h3>
-
-          {data.days.map((day, idx: number) => (
-            <Reveal key={idx} delay={0.3 + idx * 0.1}>
-              <GlassCard className="border-border/60 overflow-hidden border p-0">
-                <div className="bg-muted/40 border-border/60 flex items-center justify-between border-b px-6 py-4">
-                  <h4 className="text-lg font-bold">{day.date}</h4>
-                  <span className="text-primary text-sm font-medium">{day.title}</span>
-                </div>
-
-                <div className="space-y-6 p-6">
-                  {day.activities.map((act, actIdx: number) => (
-                    <div key={actIdx} className="group flex gap-4">
-                      <div className="flex shrink-0 flex-col items-center gap-2">
-                        <div className="bg-background border-primary/30 group-hover:border-primary flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-sm transition-colors">
-                          {getTimeIcon(act.meta)}
-                        </div>
-                        {actIdx !== day.activities.length - 1 && (
-                          <div className="bg-border/80 h-full w-px" />
-                        )}
-                      </div>
-
-                      <div className="w-full pb-6">
-                        <div className="mb-1 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-                          <h5 className="text-lg font-bold leading-tight">{act.title}</h5>
-                          {act.meta && (
-                            <span className="bg-muted text-muted-foreground w-fit shrink-0 rounded px-2 py-1 font-mono text-xs">
-                              {act.meta}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-                          {act.description}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </GlassCard>
-            </Reveal>
-          ))}
+          <span className="bg-primary/5 text-primary border-primary/10 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+            Est. Cost: Varies
+          </span>
         </div>
-
-        {/* Tips & Packing */}
-        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Reveal delay={0.5}>
-            <GlassCard className="border-primary/20 flex h-full flex-col p-6">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <Sparkles className="text-primary size-5" /> AI Travel Tips
-              </h3>
-              <div className="text-foreground/80 flex-1 space-y-3 text-sm leading-relaxed">
-                {/* Splitting long text into pseudo-paragraphs if possible */}
-                {data.travelTips.split(/(?=[A-Z])/).map((sentence, idx) => {
-                  if (sentence.trim().length > 10) {
-                    return (
-                      <div key={idx} className="flex items-start gap-2">
-                        <div className="bg-primary/60 mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" />
-                        <p>{sentence.trim()}</p>
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
-              </div>
-            </GlassCard>
-          </Reveal>
-
-          {data.packingSuggestions && data.packingSuggestions.length > 0 && (
-            <Reveal delay={0.6}>
-              <GlassCard className="flex h-full flex-col p-6">
-                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                  <Navigation className="text-accent size-5" /> Packing Checklist
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {data.packingSuggestions.map((item, idx: number) => (
-                    <div
-                      key={idx}
-                      className="bg-muted/50 border-border/50 text-foreground/80 flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm"
-                    >
-                      <div className="bg-accent/60 h-1.5 w-1.5 shrink-0 rounded-full" />
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </GlassCard>
-            </Reveal>
+        <div className="text-muted-foreground mt-1 text-sm leading-relaxed">
+          <p className={!isExpanded && isLongText ? "line-clamp-2" : ""}>{act.description}</p>
+          {isLongText && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-foreground/80 hover:text-primary mt-1.5 flex items-center gap-1 text-xs font-semibold transition-colors focus:outline-none"
+            >
+              {isExpanded ? "Show less" : "Read more"}
+            </button>
           )}
         </div>
       </div>
+    </div>
+  );
+};
+
+export function ItineraryResult({ data }: { data: TripPlanResponse }) {
+  const totalCostMatch = data.budgetSummary.total.replace(/[^0-9]/g, "");
+  const totalCost = totalCostMatch ? parseInt(totalCostMatch) : null;
+  const perPerson = totalCost ? Math.round(totalCost / 2).toLocaleString() : null;
+
+  const tipsList = data.travelTips
+    ? data.travelTips.split(".").filter((t) => t.trim().length > 5)
+    : [];
+
+  return (
+    <div className="relative flex h-full w-full flex-col items-center justify-center px-4 py-8">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
+        <div className="bg-primary/5 absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px]" />
+      </div>
+
+      <Reveal className="z-10 w-full max-w-lg">
+        <div className="flex flex-col items-center text-center">
+          <div className="text-primary bg-primary/10 border-primary/20 mb-4 flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-medium uppercase tracking-widest">
+            <Sparkles className="size-4" />
+            <span>Itinerary Ready</span>
+          </div>
+
+          <h2 className="font-display mb-10 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+            Trip to {data.destination.split(",")[0]}
+          </h2>
+
+          <div className="mb-10 grid w-full grid-cols-3 gap-3">
+            <div className="bg-card/60 border-border/40 flex flex-col items-center justify-center rounded-2xl border p-4 shadow-sm backdrop-blur-md">
+              <Wallet className="text-primary mb-2 size-5" />
+              <span className="font-display text-xl font-bold tracking-tight">
+                {data.budgetSummary.total}
+              </span>
+              <span className="text-muted-foreground mt-1 text-[10px] font-bold uppercase tracking-widest">
+                Budget
+              </span>
+            </div>
+            <div className="bg-card/60 border-border/40 flex flex-col items-center justify-center rounded-2xl border p-4 shadow-sm backdrop-blur-md">
+              <Clock className="text-primary mb-2 size-5" />
+              <span className="font-display text-xl font-bold tracking-tight">
+                {data.budgetSummary.travelTime}
+              </span>
+              <span className="text-muted-foreground mt-1 text-[10px] font-bold uppercase tracking-widest">
+                Duration
+              </span>
+            </div>
+            <div className="bg-card/60 border-border/40 flex flex-col items-center justify-center rounded-2xl border p-4 shadow-sm backdrop-blur-md">
+              <MapPin className="text-primary mb-2 size-5" />
+              <span className="font-display text-xl font-bold tracking-tight">
+                {data.budgetSummary.activitiesCount}
+              </span>
+              <span className="text-muted-foreground mt-1 text-[10px] font-bold uppercase tracking-widest">
+                Activities
+              </span>
+            </div>
+          </div>
+
+          <div className="flex w-full flex-col gap-4">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  size="lg"
+                  className="shadow-glow group h-14 w-full rounded-xl text-lg font-semibold"
+                >
+                  <Sparkles className="mr-2 size-5 transition-transform group-hover:scale-110" />
+                  View Full Itinerary
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-background border-border/40 flex h-[95vh] w-[95vw] max-w-[1400px] flex-col overflow-hidden p-0">
+                <div className="custom-scrollbar flex-1 overflow-y-auto px-4 py-16 sm:px-12 md:px-24 lg:px-32">
+                  <div className="mx-auto flex w-full max-w-[900px] flex-col space-y-16">
+                    {/* Header */}
+                    <div className="border-border/30 flex flex-col justify-between gap-6 border-b pb-6 sm:flex-row sm:items-end">
+                      <div>
+                        <h2 className="font-display mb-2 text-5xl font-bold leading-tight tracking-tight">
+                          {data.destination}
+                        </h2>
+                        <p className="text-muted-foreground line-clamp-2 max-w-2xl text-lg">
+                          {truncateWords(data.overview, 30)}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 gap-3">
+                        <Button
+                          variant="outline"
+                          className="border-border/50 rounded-full px-6 font-semibold"
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="default"
+                          className="shadow-soft rounded-full px-6 font-semibold"
+                        >
+                          Export
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                      <div className="bg-muted/20 border-border/30 flex flex-col justify-center rounded-2xl border p-5">
+                        <span className="text-muted-foreground mb-2 text-[10px] font-bold uppercase tracking-widest">
+                          Budget
+                        </span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-bold">{data.budgetSummary.total}</span>
+                        </div>
+                        {perPerson && (
+                          <span className="text-muted-foreground mt-1 text-xs">
+                            ≈ ${perPerson} / person
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="bg-muted/20 border-border/30 flex flex-col justify-center rounded-2xl border p-5">
+                        <span className="text-muted-foreground mb-2 text-[10px] font-bold uppercase tracking-widest">
+                          Duration
+                        </span>
+                        <span className="text-2xl font-bold">{data.budgetSummary.travelTime}</span>
+                        <span className="text-muted-foreground mt-1 text-xs">
+                          {data.days.length} Nights
+                        </span>
+                      </div>
+
+                      <div className="bg-muted/20 border-border/30 flex flex-col justify-center rounded-2xl border p-5">
+                        <span className="text-muted-foreground mb-2 text-[10px] font-bold uppercase tracking-widest">
+                          Activities
+                        </span>
+                        <span className="text-2xl font-bold">
+                          {data.budgetSummary.activitiesCount} Experiences
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Flights */}
+                    {data.flights.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="font-display flex items-center gap-2 text-xl font-bold">
+                          <Plane className="text-primary size-5" /> Flights
+                        </h3>
+                        <div className="grid grid-cols-1 gap-3">
+                          {data.flights.map((flight, idx: number) => (
+                            <div
+                              key={idx}
+                              className="bg-card border-border/30 flex flex-col justify-between gap-4 rounded-2xl border p-4 shadow-sm md:flex-row md:items-center"
+                            >
+                              <div className="grid w-full grid-cols-2 items-center gap-4 md:grid-cols-4 md:gap-6">
+                                <div className="col-span-2 md:col-span-1">
+                                  <h4 className="text-base font-semibold">{flight.airline}</h4>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-muted-foreground mb-0.5 text-[10px] font-bold uppercase tracking-wider">
+                                    Route
+                                  </span>
+                                  <span className="text-sm font-medium">
+                                    {flight.route.split("•")[0]?.trim() || flight.route}
+                                  </span>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-muted-foreground mb-0.5 text-[10px] font-bold uppercase tracking-wider">
+                                    Duration
+                                  </span>
+                                  <span className="text-sm font-medium">
+                                    {flight.route.split("•")[1]?.trim() || "Varies"}
+                                  </span>
+                                </div>
+                                <div className="flex flex-col items-start md:items-end">
+                                  <span className="text-muted-foreground mb-0.5 text-[10px] font-bold uppercase tracking-wider">
+                                    Price
+                                  </span>
+                                  <span className="text-foreground text-base font-bold">
+                                    {flight.price}
+                                  </span>
+                                </div>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="w-full shrink-0 rounded-full font-semibold md:w-auto"
+                              >
+                                Book
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hotels */}
+                    {data.hotels.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="font-display flex items-center gap-2 text-xl font-bold">
+                          <Hotel className="text-primary size-5" /> Stays
+                        </h3>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          {data.hotels.map((hotel, idx: number) => (
+                            <div
+                              key={idx}
+                              className="bg-card border-border/30 flex h-full flex-col justify-between rounded-2xl border p-4 shadow-sm"
+                            >
+                              <div>
+                                <div className="mb-1 flex items-start justify-between gap-2">
+                                  <h4 className="text-base font-semibold leading-tight">
+                                    {hotel.name}
+                                  </h4>
+                                  {hotel.bestMatch && (
+                                    <div className="bg-primary/10 text-primary flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest">
+                                      <Star className="size-3 fill-current" />
+                                      <span>Best Match</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <p className="text-muted-foreground mb-3 text-xs">
+                                  {hotel.location}
+                                </p>
+                              </div>
+                              {hotel.meta && (
+                                <p className="text-foreground/80 line-clamp-2 text-sm">
+                                  {truncateWords(hotel.meta, 20)}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Detailed Itinerary */}
+                    <div className="space-y-6">
+                      <h3 className="font-display flex items-center gap-2 pb-2 text-xl font-bold">
+                        <MapPin className="text-primary size-5" /> Detailed Itinerary
+                      </h3>
+
+                      <div className="space-y-8">
+                        {data.days.map((day, idx: number) => (
+                          <div key={idx} className="flex flex-col">
+                            <div className="border-border/20 mb-6 flex items-center gap-3 border-b pb-2">
+                              <h4 className="text-lg font-bold">{day.date}</h4>
+                              <div className="bg-border h-1 w-1 rounded-full" />
+                              <span className="text-muted-foreground text-sm font-medium">
+                                {day.title}
+                              </span>
+                            </div>
+
+                            <div className="pl-2">
+                              {day.activities.map((act, actIdx: number) => (
+                                <ActivityCard
+                                  key={actIdx}
+                                  act={act}
+                                  isLast={actIdx === day.activities.length - 1}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Tips & Packing */}
+                    <div className="border-border/30 grid grid-cols-1 gap-8 border-t pt-10 md:grid-cols-2">
+                      <div className="space-y-4">
+                        <h3 className="font-display flex items-center gap-2 text-lg font-bold">
+                          <Sparkles className="text-primary size-4" /> Travel Tips
+                        </h3>
+                        <div className="flex flex-col gap-3">
+                          {tipsList.map((sentence, idx) => (
+                            <div
+                              key={idx}
+                              className="text-foreground/80 flex items-start gap-3 text-sm"
+                            >
+                              <Check className="text-primary mt-0.5 size-4 shrink-0" />
+                              <span>{sentence.trim()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {data.packingSuggestions && data.packingSuggestions.length > 0 && (
+                        <div className="space-y-4">
+                          <h3 className="font-display flex items-center gap-2 text-lg font-bold">
+                            <Navigation className="text-accent size-4" /> Packing List
+                          </h3>
+                          <div className="flex flex-col gap-3">
+                            {data.packingSuggestions.map((item, idx: number) => (
+                              <div
+                                key={idx}
+                                className="text-foreground/80 flex items-start gap-3 text-sm"
+                              >
+                                <Check className="text-accent mt-0.5 size-4 shrink-0" />
+                                <span>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <div className="mt-2 flex w-full gap-4">
+              <Button
+                variant="outline"
+                className="border-border/50 hover:bg-muted/50 h-14 flex-1 rounded-xl text-base font-semibold"
+              >
+                Save Trip
+              </Button>
+              <Button
+                variant="outline"
+                className="border-border/50 hover:bg-muted/50 h-14 flex-1 rounded-xl text-base font-semibold"
+              >
+                Export
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Reveal>
     </div>
   );
 }
