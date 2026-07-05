@@ -3,7 +3,15 @@
 import React, { useState } from "react";
 import { InteractiveCard, GlassCard } from "@/components/ui/card";
 import { Reveal } from "@/components/motion/motion";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/overlays";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/overlays";
 import {
   Plane,
   Hotel,
@@ -21,7 +29,9 @@ import {
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TripPlanResponse } from "@/types/planner";
+import { TripPlanRequest, TripPlanResponse } from "@/types/planner";
+import { createClient } from "@/lib/supabase/browser";
+import { toast } from "sonner";
 
 const truncateWords = (str: string, max: number) => {
   if (!str) return "";
@@ -84,7 +94,75 @@ const ActivityCard = ({ act, isLast }: { act: any; isLast: boolean }) => {
   );
 };
 
-export function ItineraryResult({ data }: { data: TripPlanResponse }) {
+export function ItineraryResult({
+  data,
+  request,
+}: {
+  data: TripPlanResponse;
+  request: TripPlanRequest;
+}) {
+  const [isSaving, setIsSaving] = useState(false);
+  const supabase = createClient();
+
+  const handleSaveTrip = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to save trips.");
+        return;
+      }
+
+      const { error } = await supabase.from("saved_itineraries").insert({
+        user_id: user.id,
+        destination: request?.destination || data.destination,
+        start_date: request?.startDate || null,
+        end_date: request?.endDate || null,
+        travellers: request?.travellers || "",
+        travel_style: request?.style || "",
+        interests: request?.interests || [],
+        budget: request?.budget || data.budgetSummary.total,
+        prompt: request?.notes || "",
+        itinerary: data,
+      });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast.info("This trip is already saved.");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Trip saved successfully");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save trip");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleExportPDF = () => {
+    window.print();
+  };
+
+  const handleExportMarkdown = () => {
+    const md = `# Trip to ${data.destination}\n\n## Overview\n${data.overview}\n\n## Budget\n${data.budgetSummary.total}\n\n## Itinerary\n${data.days.map((d: any) => `### ${d.date} - ${d.title}\n${d.activities.map((a: any) => `- **${a.title}**: ${a.description}`).join("\n")}`).join("\n\n")}\n\n## Travel Tips\n${data.travelTips}\n\n## Packing List\n${(data.packingSuggestions || []).join("\n")}`;
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `voyageai-${data.destination.split(",")[0].toLowerCase().replace(/ /g, "-")}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Exported to Markdown");
+  };
   const totalCostMatch = data.budgetSummary.total.replace(/[^0-9]/g, "");
   const totalCost = totalCostMatch ? parseInt(totalCostMatch) : null;
   const perPerson = totalCost ? Math.round(totalCost / 2).toLocaleString() : null;
@@ -167,16 +245,30 @@ export function ItineraryResult({ data }: { data: TripPlanResponse }) {
                       <div className="flex shrink-0 gap-3">
                         <Button
                           variant="outline"
+                          onClick={handleSaveTrip}
+                          disabled={isSaving}
                           className="border-border/50 rounded-full px-6 font-semibold"
                         >
-                          Save
+                          {isSaving ? "Saving..." : "Save"}
                         </Button>
-                        <Button
-                          variant="default"
-                          className="shadow-soft rounded-full px-6 font-semibold"
-                        >
-                          Export
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="default"
+                              className="shadow-soft rounded-full px-6 font-semibold"
+                            >
+                              Export
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={handleExportPDF}>
+                              Export as PDF
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleExportMarkdown}>
+                              Export as Markdown
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
 
@@ -386,16 +478,28 @@ export function ItineraryResult({ data }: { data: TripPlanResponse }) {
             <div className="mt-2 flex w-full gap-4">
               <Button
                 variant="outline"
+                onClick={handleSaveTrip}
+                disabled={isSaving}
                 className="border-border/50 hover:bg-muted/50 h-14 flex-1 rounded-xl text-base font-semibold"
               >
-                Save Trip
+                {isSaving ? "Saving..." : "Save Trip"}
               </Button>
-              <Button
-                variant="outline"
-                className="border-border/50 hover:bg-muted/50 h-14 flex-1 rounded-xl text-base font-semibold"
-              >
-                Export
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="border-border/50 hover:bg-muted/50 h-14 flex-1 rounded-xl text-base font-semibold"
+                  >
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={handleExportPDF}>Export as PDF</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportMarkdown}>
+                    Export as Markdown
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

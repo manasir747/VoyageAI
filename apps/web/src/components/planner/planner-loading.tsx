@@ -1,11 +1,29 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Map, MapPin } from "lucide-react";
 import { GlassCard } from "@/components/ui/card";
 
+const LOADING_MESSAGES = [
+  "✈ Finding the best flights...",
+  "🏨 Searching accommodations...",
+  "🍜 Discovering restaurants...",
+  "🗺 Planning your daily itinerary...",
+  "🎒 Preparing packing list...",
+  "✨ Finalizing your trip...",
+];
+
 export function PlannerLoading() {
+  const [messageIndex, setMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="flex h-full min-h-[500px] w-full flex-col items-center justify-center text-center">
       <div className="relative mb-8">
@@ -50,24 +68,25 @@ export function PlannerLoading() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="space-y-3"
+        className="space-y-4"
       >
         <h3 className="font-display from-primary to-accent bg-gradient-to-r bg-clip-text text-2xl font-bold tracking-tight text-transparent">
           Crafting Your Perfect Itinerary
         </h3>
 
-        <div className="h-6 overflow-hidden">
-          <motion.div
-            animate={{ y: [0, -24, -48, -72, -96] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            className="text-muted-foreground flex flex-col"
-          >
-            <span className="h-6">Analyzing your preferences...</span>
-            <span className="h-6">Finding the best local spots...</span>
-            <span className="h-6">Optimizing travel routes...</span>
-            <span className="h-6">Balancing your budget...</span>
-            <span className="h-6">Finalizing the magical details...</span>
-          </motion.div>
+        <div className="relative flex h-6 w-full min-w-[250px] justify-center overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={messageIndex}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="text-muted-foreground absolute w-full text-center font-medium"
+            >
+              {LOADING_MESSAGES[messageIndex]}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </motion.div>
     </div>
