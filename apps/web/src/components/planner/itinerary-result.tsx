@@ -32,6 +32,8 @@ import { Button } from "@/components/ui/button";
 import { TripPlanRequest, TripPlanResponse } from "@/types/planner";
 import { createClient } from "@/lib/supabase/browser";
 import { toast } from "sonner";
+import { pdf } from "@react-pdf/renderer";
+import { ItineraryPDF } from "./itinerary-pdf";
 
 const truncateWords = (str: string, max: number) => {
   if (!str) return "";
@@ -102,6 +104,7 @@ export function ItineraryResult({
   request: TripPlanRequest;
 }) {
   const [isSaving, setIsSaving] = useState(false);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
   const supabase = createClient();
 
   const handleSaveTrip = async () => {
@@ -146,8 +149,27 @@ export function ItineraryResult({
     }
   };
 
-  const handleExportPDF = () => {
-    window.print();
+  const handleExportPDF = async () => {
+    if (isExportingPDF) return;
+    setIsExportingPDF(true);
+    const loadingToast = toast.loading("Generating PDF...");
+    try {
+      const blob = await pdf(<ItineraryPDF data={data} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `VoyageAI-${data.destination.split(",")[0].replace(/ /g, "-")}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("PDF exported successfully", { id: loadingToast });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate PDF", { id: loadingToast });
+    } finally {
+      setIsExportingPDF(false);
+    }
   };
 
   const handleExportMarkdown = () => {
@@ -261,8 +283,8 @@ export function ItineraryResult({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={handleExportPDF}>
-                              Export as PDF
+                            <DropdownMenuItem onClick={handleExportPDF} disabled={isExportingPDF}>
+                              {isExportingPDF ? "Generating PDF..." : "Export as PDF"}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={handleExportMarkdown}>
                               Export as Markdown
@@ -494,7 +516,9 @@ export function ItineraryResult({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={handleExportPDF}>Export as PDF</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportPDF} disabled={isExportingPDF}>
+                    {isExportingPDF ? "Generating PDF..." : "Export as PDF"}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportMarkdown}>
                     Export as Markdown
                   </DropdownMenuItem>
