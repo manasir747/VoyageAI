@@ -23,7 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <DashboardLayoutWrapper sidebar={<Sidebar />} topbar={<Topbar userName={userName} />}>
-      <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col p-4 sm:p-6 lg:p-8">{children}</div>
     </DashboardLayoutWrapper>
   );
 }
