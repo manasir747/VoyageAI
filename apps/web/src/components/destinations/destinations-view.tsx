@@ -11,41 +11,83 @@ import { Card, GlassCard } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/feedback";
 import { toast } from "sonner";
 import { DESTINATIONS, CATEGORIES, RECOMMENDATION_MAP, Destination } from "@/data/destinations";
+import { createClient } from "@/lib/supabase/browser";
 
 interface DestinationsViewProps {
   savedItineraries: any[];
+  initialSavedDestinations?: string[];
 }
 
-export function DestinationsView({ savedItineraries }: DestinationsViewProps) {
+export function DestinationsView({
+  savedItineraries,
+  initialSavedDestinations = [],
+}: DestinationsViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("All");
-  const [bookmarkedDestinations, setBookmarkedDestinations] = useState<string[]>([]);
+  const [bookmarkedDestinations, setBookmarkedDestinations] =
+    useState<string[]>(initialSavedDestinations);
+  const supabase = createClient();
 
-  // Initialize local storage bookmarks
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("voyageai_bookmarked_destinations");
-      if (stored) {
-        setBookmarkedDestinations(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.error("Failed to load bookmarks", e);
-    }
-  }, []);
+    // If we wanted to fetch on mount as a fallback, we could, but we're relying on SSR props.
+    setBookmarkedDestinations(initialSavedDestinations);
+  }, [initialSavedDestinations]);
 
-  const toggleBookmark = (id: string) => {
-    setBookmarkedDestinations((prev) => {
-      let next;
-      if (prev.includes(id)) {
-        next = prev.filter((d) => d !== id);
-        toast("Removed from favorites");
+  const toggleBookmark = async (dest: Destination) => {
+    const isSaved = bookmarkedDestinations.includes(dest.id);
+
+    // Optimistic UI update
+    setBookmarkedDestinations((prev) =>
+      isSaved ? prev.filter((id) => id !== dest.id) : [...prev, dest.id],
+    );
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("You must be logged in to save destinations");
+      return;
+    }
+
+    if (isSaved) {
+      // Remove
+      const { error } = await supabase
+        .from("saved_destinations")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("destination_slug", dest.id);
+
+      if (error) {
+        toast.error("Failed to remove from favorites");
+        // Revert optimistic update
+        setBookmarkedDestinations((prev) => [...prev, dest.id]);
       } else {
-        next = [...prev, id];
+        toast("Removed from favorites");
+      }
+    } else {
+      // Add
+      const { error } = await supabase.from("saved_destinations").insert({
+        user_id: user.id,
+        destination_slug: dest.id,
+        city: dest.city,
+        country: dest.country,
+        image_url: dest.image,
+        rating: dest.rating,
+        best_season: dest.bestSeason,
+        starting_budget: dest.startingBudget,
+        category: dest.category,
+        continent: dest.continent,
+        description: dest.description,
+      });
+
+      if (error) {
+        toast.error("Failed to save to favorites");
+        // Revert optimistic update
+        setBookmarkedDestinations((prev) => prev.filter((id) => id !== dest.id));
+      } else {
         toast.success("Saved to favorites");
       }
-      localStorage.setItem("voyageai_bookmarked_destinations", JSON.stringify(next));
-      return next;
-    });
+    }
   };
 
   // Filter destinations based on search and category
@@ -156,7 +198,7 @@ export function DestinationsView({ savedItineraries }: DestinationsViewProps) {
                 <DestinationCard
                   dest={dest}
                   isSaved={bookmarkedDestinations.includes(dest.id)}
-                  onSave={() => toggleBookmark(dest.id)}
+                  onSave={() => toggleBookmark(dest)}
                 />
               </Fade>
             ))}
@@ -197,7 +239,7 @@ export function DestinationsView({ savedItineraries }: DestinationsViewProps) {
                 <DestinationCard
                   dest={dest}
                   isSaved={bookmarkedDestinations.includes(dest.id)}
-                  onSave={() => toggleBookmark(dest.id)}
+                  onSave={() => toggleBookmark(dest)}
                 />
               </div>
             ))}
@@ -219,7 +261,7 @@ export function DestinationsView({ savedItineraries }: DestinationsViewProps) {
                 key={`rec-${dest.id}`}
                 dest={dest}
                 isSaved={bookmarkedDestinations.includes(dest.id)}
-                onSave={() => toggleBookmark(dest.id)}
+                onSave={() => toggleBookmark(dest)}
               />
             ))}
           </div>
@@ -230,7 +272,7 @@ export function DestinationsView({ savedItineraries }: DestinationsViewProps) {
 }
 
 // Reusable Destination Card Component
-function DestinationCard({
+export function DestinationCard({
   dest,
   isSaved,
   onSave,

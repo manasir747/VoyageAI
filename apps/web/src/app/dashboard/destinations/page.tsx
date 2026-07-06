@@ -21,5 +21,18 @@ export default async function DestinationsPage() {
 
   const savedItineraries = trips || [];
 
-  return <DestinationsView savedItineraries={savedItineraries} />;
+  // Fetch user's saved destinations
+  const { data: savedDestData } = await supabase
+    .from("saved_destinations")
+    .select("destination_slug")
+    .eq("user_id", user.id);
+
+  const initialSavedDestinations = (savedDestData || []).map((row) => row.destination_slug);
+
+  return (
+    <DestinationsView
+      savedItineraries={savedItineraries}
+      initialSavedDestinations={initialSavedDestinations}
+    />
+  );
 }
