@@ -2,7 +2,7 @@ begin;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types, owner_id, type)
 values
-  ('avatars', 'avatars', false, 5242880, array['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'image/heic']::text[], null, 'STANDARD'),
+  ('avatars', 'avatars', true, 5242880, array['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'image/heic']::text[], null, 'STANDARD'),
   ('profile-banners', 'profile-banners', false, 10485760, array['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'image/heic']::text[], null, 'STANDARD'),
   ('trip-documents', 'trip-documents', false, 26214400, array['application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']::text[], null, 'STANDARD'),
   ('booking-documents', 'booking-documents', false, 26214400, array['application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']::text[], null, 'STANDARD'),

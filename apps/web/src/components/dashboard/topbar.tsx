@@ -19,9 +19,10 @@ import { createClient } from "@/lib/supabase/browser";
 
 interface TopbarProps {
   userName: string;
+  avatarUrl?: string | null;
 }
 
-export function Topbar({ userName }: TopbarProps) {
+export function Topbar({ userName, avatarUrl }: TopbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -73,16 +74,24 @@ export function Topbar({ userName }: TopbarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="hover:bg-muted/50 focus-visible:ring-primary flex items-center gap-3 rounded-full p-1 pr-3 outline-none transition-colors focus-visible:ring-2">
-              <div className="bg-primary/20 text-primary flex size-8 items-center justify-center rounded-full text-xs font-semibold">
-                {getInitials(userName || "User")}
+              <div className="bg-primary/20 text-primary flex size-8 items-center justify-center overflow-hidden rounded-full text-xs font-semibold">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={userName} className="h-full w-full object-cover" />
+                ) : (
+                  getInitials(userName || "User")
+                )}
               </div>
               <span className="hidden text-sm font-medium sm:block">{userName || "User"}</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="flex items-center gap-2 p-2">
-              <div className="bg-primary/20 text-primary flex size-8 items-center justify-center rounded-full text-xs font-semibold">
-                {getInitials(userName || "User")}
+              <div className="bg-primary/20 text-primary flex size-8 items-center justify-center overflow-hidden rounded-full text-xs font-semibold">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={userName} className="h-full w-full object-cover" />
+                ) : (
+                  getInitials(userName || "User")
+                )}
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-medium">{userName || "User"}</span>

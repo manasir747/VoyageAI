@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Fade } from "@/components/motion/motion";
 import { createClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Camera, Loader2, User } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ProfilePage() {
+  const router = useRouter();
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -65,7 +67,8 @@ export default function ProfilePage() {
           const { data } = supabase.storage
             .from("avatars")
             .getPublicUrl(profile.avatar_object_path);
-          setAvatarUrl(data.publicUrl);
+          // Append timestamp to prevent stale browser-cached avatar images
+          setAvatarUrl(`${data.publicUrl}?t=${Date.now()}`);
         }
       }
     } catch (error) {
@@ -92,6 +95,7 @@ export default function ProfilePage() {
 
       if (error) throw error;
       toast.success("Profile updated successfully");
+      router.refresh();
     } catch (error) {
       console.error(error);
       toast.error("Failed to save profile");
@@ -104,6 +108,12 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file size client-side (5 MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be smaller than 5 MB");
+      return;
+    }
+
     setIsUploading(true);
     const toastId = toast.loading("Uploading avatar...");
 
@@ -113,33 +123,50 @@ export default function ProfilePage() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const fileExt = file.name.split(".").pop();
+      const fileExt = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
       const filePath = `${user.id}/avatar.${fileExt}`;
 
+      // 1. Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, file, { upsert: true, contentType: file.type });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("[Avatar Upload] Storage upload error:", uploadError);
+        throw new Error(uploadError.message);
+      }
 
-      const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      // 2. Get public URL (bucket is public, so this is a stable CDN URL)
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      // Bust the browser cache so the new image is immediately visible
+      const publicUrlWithBust = `${urlData.publicUrl}?t=${Date.now()}`;
 
-      setFormData((prev) => ({ ...prev, avatar_object_path: filePath }));
-      setAvatarUrl(data.publicUrl);
-
-      // Auto-save the path to profile
-      await supabase.from("profiles").upsert({
+      // 3. Save path to profile row
+      const { error: dbError } = await supabase.from("profiles").upsert({
         id: user.id,
         avatar_object_path: filePath,
         updated_at: new Date().toISOString(),
       });
 
+      if (dbError) {
+        console.error("[Avatar Upload] Profile DB upsert error:", dbError);
+        throw new Error(dbError.message);
+      }
+
+      // 4. Update local state so UI reflects the change immediately
+      setFormData((prev) => ({ ...prev, avatar_object_path: filePath }));
+      setAvatarUrl(publicUrlWithBust);
+
       toast.success("Avatar updated", { id: toastId });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to upload avatar", { id: toastId });
+      router.refresh();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("[Avatar Upload] Failed:", message);
+      toast.error(`Failed to upload avatar: ${message}`, { id: toastId });
     } finally {
       setIsUploading(false);
+      // Reset the file input so the same file can be re-selected if needed
+      e.target.value = "";
     }
   };
 
