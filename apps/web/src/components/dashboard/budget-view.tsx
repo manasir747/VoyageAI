@@ -27,6 +27,7 @@ import {
   ArrowRight,
   Heart,
 } from "lucide-react";
+import { formatCurrency, formatCurrencyCompact } from "@/lib/format-currency";
 
 interface BudgetViewProps {
   trips: any[];
@@ -70,15 +71,6 @@ export function BudgetView({ trips }: BudgetViewProps) {
       avgPerTraveler: totalTravelers > 0 ? Math.round(total / totalTravelers) : 0,
     };
   }, [trips]);
-
-  // Format currency
-  const formatMoney = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   // Expense breakdown (Estimated Percentages)
   const breakdownData = [
@@ -164,8 +156,11 @@ export function BudgetView({ trips }: BudgetViewProps) {
                       Total Planned Budget
                     </span>
                   </div>
-                  <span className="font-display text-3xl font-bold">
-                    {formatMoney(stats.totalBudget)}
+                  <span
+                    className="font-display text-3xl font-bold leading-none"
+                    title={formatCurrency(stats.totalBudget)}
+                  >
+                    {formatCurrencyCompact(stats.totalBudget)}
                   </span>
                 </div>
               </GlassCard>
@@ -179,8 +174,11 @@ export function BudgetView({ trips }: BudgetViewProps) {
                       Upcoming Trip Budget
                     </span>
                   </div>
-                  <span className="font-display text-3xl font-bold">
-                    {formatMoney(stats.upcomingBudget)}
+                  <span
+                    className="font-display text-3xl font-bold leading-none"
+                    title={formatCurrency(stats.upcomingBudget)}
+                  >
+                    {formatCurrencyCompact(stats.upcomingBudget)}
                   </span>
                 </div>
               </GlassCard>
@@ -194,8 +192,11 @@ export function BudgetView({ trips }: BudgetViewProps) {
                       Avg Budget Per Trip
                     </span>
                   </div>
-                  <span className="font-display text-3xl font-bold">
-                    {formatMoney(stats.avgPerTrip)}
+                  <span
+                    className="font-display text-3xl font-bold leading-none"
+                    title={formatCurrency(stats.avgPerTrip)}
+                  >
+                    {formatCurrencyCompact(stats.avgPerTrip)}
                   </span>
                 </div>
               </GlassCard>
@@ -209,8 +210,11 @@ export function BudgetView({ trips }: BudgetViewProps) {
                       Avg Budget Per Traveler
                     </span>
                   </div>
-                  <span className="font-display text-3xl font-bold">
-                    {formatMoney(stats.avgPerTraveler)}
+                  <span
+                    className="font-display text-3xl font-bold leading-none"
+                    title={formatCurrency(stats.avgPerTraveler)}
+                  >
+                    {formatCurrencyCompact(stats.avgPerTraveler)}
                   </span>
                 </div>
               </GlassCard>
@@ -238,7 +242,7 @@ export function BudgetView({ trips }: BudgetViewProps) {
                           {item.label}
                         </span>
                         <span className="text-muted-foreground mt-0.5 text-xs">
-                          {item.value}% • {formatMoney(stats.totalBudget * (item.value / 100))}
+                          {item.value}% • {formatCurrency(stats.totalBudget * (item.value / 100))}
                         </span>
                       </div>
                     </div>
@@ -310,39 +314,43 @@ export function BudgetView({ trips }: BudgetViewProps) {
               <div className="bg-muted/30 flex flex-col gap-3 rounded-xl p-4">
                 <div className="border-border/40 flex items-center justify-between border-b pb-2">
                   <span className="text-muted-foreground text-sm font-medium">Per Traveler</span>
-                  <span className="font-bold">{formatMoney(calcResults.perTraveler)}</span>
+                  <span className="font-bold">{formatCurrency(calcResults.perTraveler)}</span>
                 </div>
                 <div className="border-border/40 flex items-center justify-between border-b pb-2">
                   <span className="text-muted-foreground text-sm font-medium">Per Day</span>
-                  <span className="font-bold">{formatMoney(calcResults.perDay)}</span>
+                  <span className="font-bold">{formatCurrency(calcResults.perDay)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <div>
                     <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
                       <Hotel className="size-3" /> Hotel
                     </span>
-                    <span className="text-sm font-semibold">{formatMoney(calcResults.hotels)}</span>
+                    <span className="text-sm font-semibold">
+                      {formatCurrency(calcResults.hotels)}
+                    </span>
                   </div>
                   <div>
                     <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
                       <Plane className="size-3" /> Flight
                     </span>
                     <span className="text-sm font-semibold">
-                      {formatMoney(calcResults.flights)}
+                      {formatCurrency(calcResults.flights)}
                     </span>
                   </div>
                   <div>
                     <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
                       <Coffee className="size-3" /> Food
                     </span>
-                    <span className="text-sm font-semibold">{formatMoney(calcResults.food)}</span>
+                    <span className="text-sm font-semibold">
+                      {formatCurrency(calcResults.food)}
+                    </span>
                   </div>
                   <div>
                     <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider">
                       <Activity className="size-3" /> Activity
                     </span>
                     <span className="text-sm font-semibold">
-                      {formatMoney(calcResults.activities)}
+                      {formatCurrency(calcResults.activities)}
                     </span>
                   </div>
                 </div>

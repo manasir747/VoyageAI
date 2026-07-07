@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Fade, Stagger } from "@/components/motion/motion";
 import Link from "next/link";
+import { formatCurrency, formatCurrencyCompact } from "@/lib/format-currency";
 import { TripCard } from "@/components/dashboard/trip-card";
 import { DoughnutChart } from "@/components/dashboard/doughnut-chart";
 
@@ -32,14 +33,6 @@ const parseBudget = (budgetString: string | null | undefined): number => {
   const numbers = budgetString.replace(/,/g, "").match(/\d+/g);
   if (!numbers || numbers.length === 0) return 0;
   return parseInt(numbers[0], 10);
-};
-
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
 };
 
 const formatRelativeDate = (dateString: string) => {
@@ -208,7 +201,9 @@ export default async function DashboardPage() {
                 </span>
               </div>
               <div className="mt-auto">
-                <p className="truncate text-3xl font-bold">{formatCurrency(totalBudget)}</p>
+                <p className="text-3xl font-bold leading-none" title={formatCurrency(totalBudget)}>
+                  {formatCurrencyCompact(totalBudget)}
+                </p>
                 <p className="text-muted-foreground mt-1 text-xs leading-tight">Across all trips</p>
               </div>
             </Card>

@@ -33,6 +33,7 @@ venv/
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+tsconfig.tsbuildinfo
 
 # Docker and build outputs
 dist/
