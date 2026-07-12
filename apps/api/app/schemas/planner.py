@@ -61,11 +61,23 @@ class BudgetSummary(BaseModel):
     activitiesCount: int
 
 
+class RestaurantRecommendation(BaseModel):
+    name: str
+    cuisine: str
+    rating: str
+    price: str
+    description: str
+    address: str
+
+
 class TripPlanResponse(BaseModel):
     destination: str
+    latitude: float
+    longitude: float
     overview: str
     budgetSummary: BudgetSummary
     hotels: List[HotelRecommendation]
+    restaurants: List[RestaurantRecommendation]
     flights: List[FlightRecommendation]
     days: List[DayPlan]
     travelTips: str

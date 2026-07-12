@@ -57,11 +57,23 @@ export interface BudgetSummary {
   activitiesCount: number;
 }
 
+export interface RestaurantRecommendation {
+  name: string;
+  cuisine: string;
+  rating: string;
+  price: string;
+  description: string;
+  address: string;
+}
+
 export interface TripPlanResponse {
   destination: string;
+  latitude: number;
+  longitude: number;
   overview: string;
   budgetSummary: BudgetSummary;
   hotels: HotelRecommendation[];
+  restaurants: RestaurantRecommendation[];
   flights: FlightRecommendation[];
   days: DayPlan[];
   travelTips: string;

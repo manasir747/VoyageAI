@@ -11,6 +11,7 @@ from app.schemas.planner import (
     TripPlanResponse,
     BudgetSummary,
     HotelRecommendation,
+    RestaurantRecommendation,
     FlightRecommendation,
     DayPlan,
     DayActivity,
@@ -26,6 +27,8 @@ class MockPlannerService:
         # We simulate the rich itinerary based on the UI design from Phase 5A
         return TripPlanResponse(
             destination=request.destination,
+            latitude=35.6762,
+            longitude=139.6503,
             overview="A perfect blend of traditional culture, modern neon lights, and incredible cuisine, optimized for a moderate budget and adventurous spirit.",
             budgetSummary=BudgetSummary(
                 total="$1,850",
@@ -55,6 +58,32 @@ class MockPlannerService:
                     tag="Boutique",
                     meta="★ 4.3",
                     bestMatch=False,
+                ),
+            ],
+            restaurants=[
+                RestaurantRecommendation(
+                    name="Din Tai Fung Tokyo",
+                    cuisine="Taiwanese • Dumplings",
+                    rating="4.6 ★",
+                    price="$$",
+                    description="Famous for handcrafted soup dumplings.",
+                    address="1-5-6 Marunouchi, Tokyo",
+                ),
+                RestaurantRecommendation(
+                    name="Sukiyabashi Jiro",
+                    cuisine="Sushi • Fine Dining",
+                    rating="4.8 ★",
+                    price="$$$",
+                    description="World-renowned sushi dining experience.",
+                    address="4-2-15 Ginza, Tokyo",
+                ),
+                RestaurantRecommendation(
+                    name="Ichiran Ramen",
+                    cuisine="Ramen • Japanese",
+                    rating="4.7 ★",
+                    price="$",
+                    description="Classic tonkotsu ramen in private booths.",
+                    address="1-22-7 Jinnan, Shibuya, Tokyo",
                 ),
             ],
             flights=[
@@ -135,6 +164,8 @@ class GeminiPlannerService:
             "realistic, and highly appealing travel itinerary based on the user's preferences. "
             "You must output JSON that strictly matches the required schema. Ensure the response is rich in detail, "
             "uses engaging language, and includes realistic estimated prices where applicable.\n\n"
+            "COORDINATES LOGIC:\n"
+            "- You MUST return the accurate geographical `latitude` and `longitude` (as floats) for the destination city.\n\n"
             "HOTEL RECOMMENDATIONS LOGIC:\n"
             "- Recommend real, highly-rated hotels.\n"
             "- Provide a highly specific `imageQuery` (e.g. 'Faena Hotel Miami Beach exterior') that can be used to search Wikipedia/Images.\n"
@@ -142,6 +173,13 @@ class GeminiPlannerService:
             "- Include a short, engaging `summary` of the hotel.\n"
             "- Include a realistic `price` (e.g. '~$250/night').\n"
             "- Include a descriptive `tag` (e.g. 'Luxury', 'Budget', 'Family', 'Boutique').\n\n"
+            "RESTAURANT RECOMMENDATIONS LOGIC:\n"
+            "- Recommend 3 real, specific, highly-rated restaurants matching the destination and style.\n"
+            "- Include the actual cuisine (e.g., 'Italian • Fine Dining').\n"
+            "- Include the Google rating (e.g., '4.6 ★').\n"
+            "- Include the approximate price level ($, $$, or $$$).\n"
+            "- Include a short one-line description.\n"
+            "- Include the actual address of the restaurant.\n\n"
             "FLIGHT RECOMMENDATIONS LOGIC:\n"
             "- Recommend airlines that realistically operate or partner on routes between the user's departure city and destination.\n"
             "- Generate both an 'Outbound Flight' and a 'Return Flight'.\n"

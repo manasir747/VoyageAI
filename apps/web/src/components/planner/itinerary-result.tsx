@@ -29,6 +29,9 @@ import {
   Users,
   Utensils,
   Camera,
+  Cloud,
+  CloudSnow,
+  CloudLightning,
   CloudSun,
   CloudRain,
   ThermometerSun,
@@ -241,7 +244,66 @@ export function ItineraryResult({
 }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const [weatherData, setWeatherData] = useState<
+    { day: string; temp: string; icon: any; condition: string }[] | null
+  >(null);
   const supabase = createClient();
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchWeather = async () => {
+      try {
+        if (!data.latitude || !data.longitude) return;
+        const res = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${data.latitude}&longitude=${data.longitude}&daily=temperature_2m_max,weathercode&timezone=auto`,
+        );
+        const json = await res.json();
+
+        if (json.daily && json.daily.time) {
+          const w = json.daily.time.slice(0, 4).map((dateStr: string, idx: number) => {
+            const temp = Math.round(json.daily.temperature_2m_max[idx]);
+            const code = json.daily.weathercode[idx];
+            let icon = Sun;
+            let condition = "Sunny";
+
+            if (code <= 1) {
+              icon = Sun;
+              condition = "Sunny";
+            } else if (code <= 3) {
+              icon = CloudSun;
+              condition = "Partly Cloudy";
+            } else if (code <= 49) {
+              icon = Cloud;
+              condition = "Cloudy";
+            } else if (code <= 69) {
+              icon = CloudRain;
+              condition = "Rain";
+            } else if (code <= 79) {
+              icon = CloudSnow;
+              condition = "Snow";
+            } else {
+              icon = CloudLightning;
+              condition = "Storm";
+            }
+
+            return {
+              day: `Day ${idx + 1}`,
+              temp: `${temp}°C`,
+              icon,
+              condition,
+            };
+          });
+          if (isMounted) setWeatherData(w);
+        }
+      } catch (e) {
+        console.error("Failed to fetch weather", e);
+      }
+    };
+    fetchWeather();
+    return () => {
+      isMounted = false;
+    };
+  }, [data.latitude, data.longitude]);
 
   const handleSaveTrip = async () => {
     if (isSaving) return;
@@ -677,55 +739,80 @@ export function ItineraryResult({
 
                       {/* MOCK SECTIONS (Restaurants, Attractions, Weather) */}
                       <div className="border-border/30 space-y-16 border-t pt-10">
-                        <div className="space-y-8">
-                          <h3 className="font-display flex items-center gap-3 text-3xl font-bold">
-                            <Utensils className="text-primary size-8" /> Recommended Dining
-                          </h3>
-                          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                            {/* Static mock data */}
-                            {[1, 2, 3].map((i) => (
-                              <GlassCard key={i} className="border-border/40 p-5">
-                                <div className="bg-muted mb-4 h-32 w-full rounded-xl bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=500&auto=format&fit=crop')] bg-cover bg-center" />
-                                <h4 className="font-bold">Local Cuisine {i}</h4>
-                                <p className="text-muted-foreground text-xs">
-                                  Authentic local dining experience
-                                </p>
-                                <div className="mt-3 flex items-center gap-2">
-                                  <Star className="text-warning size-4 fill-current" />
-                                  <span className="text-sm font-bold">4.{8 - i}</span>
-                                  <span className="text-muted-foreground text-xs">• $$</span>
-                                </div>
-                              </GlassCard>
-                            ))}
+                        {data.restaurants && data.restaurants.length > 0 && (
+                          <div className="space-y-8">
+                            <h3 className="font-display flex items-center gap-3 text-3xl font-bold">
+                              <Utensils className="text-primary size-8" /> Recommended Dining
+                            </h3>
+                            <div className="grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-3">
+                              {data.restaurants.map((restaurant, i) => {
+                                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                  restaurant.name + " " + data.destination,
+                                )}`;
+                                return (
+                                  <GlassCard
+                                    key={i}
+                                    className="border-border/40 flex h-full flex-col p-5"
+                                  >
+                                    <div className="bg-muted mb-4 h-32 w-full shrink-0 rounded-xl bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=500&auto=format&fit=crop')] bg-cover bg-center" />
+                                    <h4 className="mb-1 line-clamp-2 text-lg font-bold leading-tight">
+                                      {restaurant.name}
+                                    </h4>
+                                    <p className="text-muted-foreground mb-2 text-xs font-semibold">
+                                      {restaurant.cuisine}
+                                    </p>
+                                    <p className="text-muted-foreground mb-4 text-sm">
+                                      {restaurant.description}
+                                    </p>
+
+                                    <div className="text-muted-foreground mb-4 flex flex-1 items-start gap-1.5 text-xs">
+                                      <MapPin className="mt-0.5 size-3.5 shrink-0" />
+                                      <span className="line-clamp-2 flex-1 break-words">
+                                        {restaurant.address}
+                                      </span>
+                                    </div>
+
+                                    <div className="border-border/30 mt-auto flex items-center justify-between border-t pt-4">
+                                      <div className="flex items-center gap-2">
+                                        <Star className="text-warning size-3.5 fill-current" />
+                                        <span className="text-sm font-bold">
+                                          {restaurant.rating.replace(/[^0-9.]/g, "") || "4.5"}
+                                        </span>
+                                        <span className="text-muted-foreground text-xs">
+                                          • {restaurant.price}
+                                        </span>
+                                      </div>
+                                      <Button
+                                        variant="default"
+                                        size="sm"
+                                        className="shrink-0 font-semibold shadow-sm transition-shadow hover:shadow-md"
+                                        onClick={() =>
+                                          window.open(mapUrl, "_blank", "noopener,noreferrer")
+                                        }
+                                      >
+                                        View Details
+                                      </Button>
+                                    </div>
+                                  </GlassCard>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         <div className="space-y-8">
                           <h3 className="font-display flex items-center gap-3 text-3xl font-bold">
                             <CloudSun className="text-primary size-8" /> Weather Forecast
                           </h3>
                           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            {[
-                              { day: "Day 1", temp: "72°F", icon: Sun, condition: "Sunny" },
-                              {
-                                day: "Day 2",
-                                temp: "68°F",
-                                icon: CloudSun,
-                                condition: "Partly Cloudy",
-                              },
-                              {
-                                day: "Day 3",
-                                temp: "65°F",
-                                icon: CloudRain,
-                                condition: "Light Rain",
-                              },
-                              {
-                                day: "Day 4",
-                                temp: "75°F",
-                                icon: ThermometerSun,
-                                condition: "Clear",
-                              },
-                            ].map((w, i) => (
+                            {(
+                              weatherData || [
+                                { day: "Day 1", temp: "--", icon: Sun, condition: "Loading..." },
+                                { day: "Day 2", temp: "--", icon: Sun, condition: "Loading..." },
+                                { day: "Day 3", temp: "--", icon: Sun, condition: "Loading..." },
+                                { day: "Day 4", temp: "--", icon: Sun, condition: "Loading..." },
+                              ]
+                            ).map((w, i) => (
                               <GlassCard
                                 key={i}
                                 className="border-border/40 flex flex-col items-center justify-center p-6 text-center"
@@ -733,7 +820,12 @@ export function ItineraryResult({
                                 <span className="text-muted-foreground mb-3 text-xs font-bold uppercase">
                                   {w.day}
                                 </span>
-                                <w.icon className="text-primary mb-3 size-8" />
+                                <w.icon
+                                  className={cn(
+                                    "text-primary mb-3 size-8",
+                                    !weatherData && "animate-pulse",
+                                  )}
+                                />
                                 <span className="text-2xl font-bold">{w.temp}</span>
                                 <span className="text-muted-foreground text-sm">{w.condition}</span>
                               </GlassCard>
