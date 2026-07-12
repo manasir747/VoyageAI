@@ -1,4 +1,5 @@
 export interface TripPlanRequest {
+  departureCity: string;
   destination: string;
   startDate: string;
   endDate: string;
@@ -29,10 +30,18 @@ export interface HotelRecommendation {
 }
 
 export interface FlightRecommendation {
+  type: string;
   airline: string;
-  route: string;
-  meta?: string;
+  departureAirport: string;
+  arrivalAirport: string;
+  departureDate: string;
+  departureTime: string;
+  arrivalDate: string;
+  arrivalTime: string;
+  duration: string;
+  stops: string;
   price: string;
+  cabinClass: string;
 }
 
 export interface BudgetSummary {

@@ -3,6 +3,7 @@ from typing import List, Optional
 
 
 class TripPlanRequest(BaseModel):
+    departureCity: str
     destination: str
     startDate: str
     endDate: str
@@ -33,10 +34,18 @@ class HotelRecommendation(BaseModel):
 
 
 class FlightRecommendation(BaseModel):
+    type: str
     airline: str
-    route: str
-    meta: Optional[str] = None
+    departureAirport: str
+    arrivalAirport: str
+    departureDate: str
+    departureTime: str
+    arrivalDate: str
+    arrivalTime: str
+    duration: str
+    stops: str
     price: str
+    cabinClass: str
 
 
 class BudgetSummary(BaseModel):

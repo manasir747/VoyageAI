@@ -49,11 +49,33 @@ class MockPlannerService:
             ],
             flights=[
                 FlightRecommendation(
+                    type="Outbound Flight",
                     airline="Global Airways",
-                    route="Direct • 12h 45m",
-                    meta="Recommended",
+                    departureAirport="LAX",
+                    arrivalAirport="HND",
+                    departureDate="12 Jul",
+                    departureTime="10:40 AM",
+                    arrivalDate="13 Jul",
+                    arrivalTime="03:15 PM",
+                    duration="13h 20m",
+                    stops="Non-stop",
                     price="$850",
-                )
+                    cabinClass="Economy",
+                ),
+                FlightRecommendation(
+                    type="Return Flight",
+                    airline="Global Airways",
+                    departureAirport="HND",
+                    arrivalAirport="LAX",
+                    departureDate="20 Jul",
+                    departureTime="11:00 AM",
+                    arrivalDate="20 Jul",
+                    arrivalTime="09:00 AM",
+                    duration="11h 00m",
+                    stops="Non-stop",
+                    price="$850",
+                    cabinClass="Economy",
+                ),
             ],
             days=[
                 DayPlan(
@@ -102,10 +124,21 @@ class GeminiPlannerService:
             "You are an expert, premium AI travel planner. Your job is to create a complete, "
             "realistic, and highly appealing travel itinerary based on the user's preferences. "
             "You must output JSON that strictly matches the required schema. Ensure the response is rich in detail, "
-            "uses engaging language, and includes realistic estimated prices where applicable."
+            "uses engaging language, and includes realistic estimated prices where applicable.\n\n"
+            "FLIGHT RECOMMENDATIONS LOGIC:\n"
+            "- Recommend airlines that realistically operate or partner on routes between the user's departure city and destination.\n"
+            "- Generate both an 'Outbound Flight' and a 'Return Flight'.\n"
+            "- Match cabin class to the selected travel style (e.g. Luxury -> First/Business, Budget -> Economy).\n"
+            "- Luxury: Prefer Emirates, Singapore Airlines, Qatar Airways, ANA First, JAL First, Etihad.\n"
+            "- Comfort: Prefer Premium Economy or Business on ANA, JAL, Lufthansa, Air France, British Airways.\n"
+            "- Budget: Prefer Economy on AirAsia, Scoot, IndiGo, VietJet, Peach Aviation, ZipAir, Jetstar.\n"
+            "- Output valid IATA codes for departureAirport and arrivalAirport.\n"
+            "- Include estimated prices, departure and arrival times, trip duration, and number of stops. "
+            "If exact schedules are unavailable, generate realistic examples."
         )
 
         prompt = (
+            f"Departure City: {request.departureCity}\n"
             f"Destination: {request.destination}\n"
             f"Dates: {request.startDate} to {request.endDate}\n"
             f"Travellers: {request.travellers}\n"

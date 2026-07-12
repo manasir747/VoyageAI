@@ -45,6 +45,7 @@ export function PlannerForm({
   onSubmit: (data: TripPlanRequest) => void;
   isGenerating: boolean;
 }) {
+  const [departureCity, setDepartureCity] = useState("");
   const [destination, setDestination] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -62,11 +63,12 @@ export function PlannerForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!destination || !startDate || !endDate) {
-      alert("Please fill in the destination and dates.");
+    if (!departureCity || !destination || !startDate || !endDate) {
+      alert("Please fill in the departure city, destination and dates.");
       return;
     }
     onSubmit({
+      departureCity,
       destination,
       startDate,
       endDate,
@@ -87,17 +89,36 @@ export function PlannerForm({
           <h3 className="font-display text-xl font-bold">Where & When</h3>
         </div>
         <div className="flex flex-col gap-6">
-          <div>
-            <label className="text-foreground mb-1.5 block text-sm font-medium">Destination</label>
-            <div className="relative">
-              <MapPin className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
-              <Input
-                placeholder="e.g. Tokyo, Japan"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                className="pl-10 text-base shadow-sm"
-                required
-              />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="text-foreground mb-1.5 block text-sm font-medium">
+                Departure City
+              </label>
+              <div className="relative">
+                <MapPin className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+                <Input
+                  placeholder="e.g. New York, USA"
+                  value={departureCity}
+                  onChange={(e) => setDepartureCity(e.target.value)}
+                  className="pl-10 text-base shadow-sm"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-foreground mb-1.5 block text-sm font-medium">
+                Destination
+              </label>
+              <div className="relative">
+                <MapPin className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+                <Input
+                  placeholder="e.g. Tokyo, Japan"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                  className="pl-10 text-base shadow-sm"
+                  required
+                />
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -430,39 +430,79 @@ export function ItineraryResult({
                           <h3 className="font-display flex items-center gap-3 text-3xl font-bold">
                             <Plane className="text-primary size-8" /> Recommended Flights
                           </h3>
-                          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                            {data.flights.map((flight, idx: number) => (
-                              <InteractiveCard key={idx} className="border-border/40 p-6">
-                                <div className="mb-4 flex items-center justify-between">
-                                  <h4 className="text-xl font-bold">{flight.airline}</h4>
-                                  <span className="text-foreground text-xl font-bold">
-                                    {flight.price}
-                                  </span>
-                                </div>
-                                <div className="mb-6 flex items-center gap-4">
-                                  <div className="flex-1 text-center">
-                                    <span className="text-muted-foreground block text-[10px] font-bold uppercase tracking-widest">
-                                      Route
-                                    </span>
-                                    <span className="text-sm font-semibold">
-                                      {flight.route.split("•")[0]?.trim() || flight.route}
-                                    </span>
-                                  </div>
-                                  <div className="bg-border h-px flex-1"></div>
-                                  <Plane className="text-muted-foreground size-4 shrink-0" />
-                                  <div className="bg-border h-px flex-1"></div>
-                                  <div className="flex-1 text-center">
-                                    <span className="text-muted-foreground block text-[10px] font-bold uppercase tracking-widest">
-                                      Duration
-                                    </span>
-                                    <span className="text-sm font-semibold">
-                                      {flight.route.split("•")[1]?.trim() || "Varies"}
+                          <div className="grid grid-cols-1 gap-6">
+                            {data.flights.map((flight, idx: number) => {
+                              const kayakUrl = `https://www.kayak.com/flights/${flight.departureAirport}-${flight.arrivalAirport}/${request?.startDate || ""}${request?.endDate ? `/${request.endDate}` : ""}?sort=bestflight_a`;
+                              return (
+                                <InteractiveCard
+                                  key={idx}
+                                  className="border-border/40 flex flex-col gap-6 p-6"
+                                >
+                                  {flight.type && (
+                                    <div className="text-muted-foreground border-border/40 border-b pb-3 text-sm font-bold uppercase tracking-widest">
+                                      {flight.type}
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                                    <div className="flex flex-col gap-1">
+                                      <h4 className="text-xl font-bold">{flight.airline}</h4>
+                                      <span className="text-muted-foreground text-sm font-medium">
+                                        {flight.cabinClass}
+                                      </span>
+                                    </div>
+                                    <span className="text-foreground text-2xl font-bold">
+                                      {flight.price}
                                     </span>
                                   </div>
-                                </div>
-                                <Button className="w-full font-semibold">Select Flight</Button>
-                              </InteractiveCard>
-                            ))}
+
+                                  <div className="flex flex-col gap-6 py-4 sm:flex-row sm:items-center sm:gap-4">
+                                    <div className="flex flex-1 flex-col">
+                                      <span className="text-lg font-bold">
+                                        {flight.departureTime}
+                                      </span>
+                                      <span className="text-muted-foreground text-sm font-medium">
+                                        {flight.departureAirport}
+                                      </span>
+                                      <span className="text-muted-foreground mt-1 text-xs">
+                                        {flight.departureDate}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex flex-[2] flex-col items-center gap-2 px-4">
+                                      <span className="text-muted-foreground text-xs font-bold uppercase tracking-widest">
+                                        {flight.duration}
+                                      </span>
+                                      <div className="flex w-full items-center gap-2">
+                                        <div className="bg-border h-px flex-1"></div>
+                                        <Plane className="text-muted-foreground size-4 shrink-0" />
+                                        <div className="bg-border h-px flex-1"></div>
+                                      </div>
+                                      <span className="text-muted-foreground text-xs font-bold uppercase tracking-widest">
+                                        {flight.stops}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex flex-1 flex-col items-start text-left sm:items-end sm:text-right">
+                                      <span className="text-lg font-bold">
+                                        {flight.arrivalTime}
+                                      </span>
+                                      <span className="text-muted-foreground text-sm font-medium">
+                                        {flight.arrivalAirport}
+                                      </span>
+                                      <span className="text-muted-foreground mt-1 text-xs">
+                                        {flight.arrivalDate}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <Button asChild className="mt-2 w-full font-semibold">
+                                    <a href={kayakUrl} target="_blank" rel="noopener noreferrer">
+                                      Select Flight
+                                    </a>
+                                  </Button>
+                                </InteractiveCard>
+                              );
+                            })}
                           </div>
                         </div>
                       )}

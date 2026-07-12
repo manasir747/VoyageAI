@@ -53,6 +53,7 @@ export default function AIPlannerPage() {
 
       setItinerary(data.itinerary);
       setLastRequest({
+        departureCity: data.departure_city || "",
         destination: data.destination,
         startDate: data.start_date,
         endDate: data.end_date,
