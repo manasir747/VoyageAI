@@ -431,6 +431,132 @@ export default function LandingPage() {
         </Grid>
       </Section>
 
+      <Section id="how-it-works" className="bg-background">
+        <ScrollReveal>
+          <div className="mx-auto mb-16 max-w-2xl text-center">
+            <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+              How VoyageAI Works
+            </h2>
+            <p className="text-muted-foreground mt-4 text-lg">
+              Plan an entire trip in minutes using intelligent AI-powered travel planning.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <Grid columns={12} className="gap-6">
+          <div className="col-span-12 sm:col-span-6 lg:col-span-3">
+            <ScrollReveal delay={0.1}>
+              <GlassCard className="group relative flex h-full flex-col p-8 transition-all hover:-translate-y-1 hover:shadow-[0_0_2rem_-0.5rem_rgba(var(--primary),0.2)]">
+                <div className="mb-4 text-4xl">📝</div>
+                <h3 className="mb-2 text-xl font-semibold">Tell Us Your Trip</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Choose your destination, travel dates, budget, travel style and interests.
+                </p>
+              </GlassCard>
+            </ScrollReveal>
+          </div>
+          <div className="col-span-12 sm:col-span-6 lg:col-span-3">
+            <ScrollReveal delay={0.2}>
+              <GlassCard className="group relative flex h-full flex-col p-8 transition-all hover:-translate-y-1 hover:shadow-[0_0_2rem_-0.5rem_rgba(var(--primary),0.2)]">
+                <div className="mb-4 text-4xl">🤖</div>
+                <h3 className="mb-2 text-xl font-semibold">AI Creates Your Itinerary</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  VoyageAI generates a complete day-wise itinerary including attractions, hotels and
+                  travel suggestions.
+                </p>
+              </GlassCard>
+            </ScrollReveal>
+          </div>
+          <div className="col-span-12 sm:col-span-6 lg:col-span-3">
+            <ScrollReveal delay={0.3}>
+              <GlassCard className="group relative flex h-full flex-col p-8 transition-all hover:-translate-y-1 hover:shadow-[0_0_2rem_-0.5rem_rgba(var(--primary),0.2)]">
+                <div className="mb-4 text-4xl">✈️</div>
+                <h3 className="mb-2 text-xl font-semibold">Review & Customize</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Modify activities, compare recommendations and personalize every day of your
+                  journey.
+                </p>
+              </GlassCard>
+            </ScrollReveal>
+          </div>
+          <div className="col-span-12 sm:col-span-6 lg:col-span-3">
+            <ScrollReveal delay={0.4}>
+              <GlassCard className="group relative flex h-full flex-col p-8 transition-all hover:-translate-y-1 hover:shadow-[0_0_2rem_-0.5rem_rgba(var(--primary),0.2)]">
+                <div className="mb-4 text-4xl">💾</div>
+                <h3 className="mb-2 text-xl font-semibold">Save & Export</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Save your itinerary securely and export a beautifully formatted PDF whenever you
+                  need it.
+                </p>
+              </GlassCard>
+            </ScrollReveal>
+          </div>
+        </Grid>
+      </Section>
+
+      <Section id="about" className="bg-muted/5">
+        <ScrollReveal>
+          <div className="mx-auto mb-16 max-w-3xl text-center">
+            <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+              About VoyageAI
+            </h2>
+            <p className="text-muted-foreground mt-4 text-lg">
+              AI-powered travel planning designed to make every journey smarter, faster and more
+              personalized.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal delay={0.1}>
+          <div className="mx-auto mb-16 max-w-4xl text-center">
+            <p className="text-foreground/90 text-lg leading-relaxed sm:text-xl">
+              VoyageAI is an AI-powered travel operating system that transforms trip planning into a
+              seamless experience. Instead of spending hours researching destinations, hotels and
+              attractions, users simply describe their ideal vacation and receive a complete
+              personalized itinerary generated in seconds. Built with modern AI technologies,
+              VoyageAI combines intelligent recommendations with beautiful design to simplify every
+              stage of travel planning.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <Grid columns={12} className="gap-6">
+          <div className="col-span-12 md:col-span-4">
+            <ScrollReveal delay={0.2}>
+              <GlassCard className="group relative flex h-full flex-col items-center p-8 text-center transition-all hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_2rem_-0.5rem_rgba(var(--primary),0.2)]">
+                <div className="mb-4 text-4xl">⚡</div>
+                <h3 className="mb-2 text-xl font-semibold">AI Powered</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Generate personalized itineraries within seconds.
+                </p>
+              </GlassCard>
+            </ScrollReveal>
+          </div>
+          <div className="col-span-12 md:col-span-4">
+            <ScrollReveal delay={0.3}>
+              <GlassCard className="group relative flex h-full flex-col items-center p-8 text-center transition-all hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_2rem_-0.5rem_rgba(var(--primary),0.2)]">
+                <div className="mb-4 text-4xl">🎯</div>
+                <h3 className="mb-2 text-xl font-semibold">Personalized</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Every itinerary adapts to your destination, interests and travel preferences.
+                </p>
+              </GlassCard>
+            </ScrollReveal>
+          </div>
+          <div className="col-span-12 md:col-span-4">
+            <ScrollReveal delay={0.4}>
+              <GlassCard className="group relative flex h-full flex-col items-center p-8 text-center transition-all hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_2rem_-0.5rem_rgba(var(--primary),0.2)]">
+                <div className="mb-4 text-4xl">🌍</div>
+                <h3 className="mb-2 text-xl font-semibold">End-to-End Planning</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Hotels, attractions, budgets and day-wise planning all in one experience.
+                </p>
+              </GlassCard>
+            </ScrollReveal>
+          </div>
+        </Grid>
+      </Section>
+
       <Section id="testimonials">
         <ScrollReveal>
           <div className="mx-auto mb-16 max-w-2xl text-center">
