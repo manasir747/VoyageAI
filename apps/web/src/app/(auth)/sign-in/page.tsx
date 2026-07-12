@@ -23,6 +23,7 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 export default function SignInPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
 
   const {
@@ -35,6 +36,7 @@ export default function SignInPage() {
 
   const onSubmit = async (data: SignInFormValues) => {
     setError(null);
+    setIsLoading(true);
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
@@ -42,9 +44,12 @@ export default function SignInPage() {
 
     if (signInError) {
       setError(signInError.message);
+      setIsLoading(false);
       return;
     }
 
+    // Keep isLoading true — don't reset it so the button stays in "Signing in..." state
+    // until the browser navigates away to the dashboard.
     router.push("/dashboard");
     router.refresh();
   };
@@ -99,8 +104,8 @@ export default function SignInPage() {
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Signing in..." : "Sign In"}
+          <Button type="submit" className="w-full" disabled={isLoading || isSubmitting}>
+            {isLoading || isSubmitting ? "Signing in..." : "Sign In"}
           </Button>
         </form>
 
