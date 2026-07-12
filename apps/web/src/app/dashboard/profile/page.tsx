@@ -44,6 +44,9 @@ export default function ProfilePage() {
   const [memberSince, setMemberSince] = useState("");
   const [lastUpdated, setLastUpdated] = useState("");
 
+  const [initialData, setInitialData] = useState<any>(null);
+  const [isDirty, setIsDirty] = useState(false);
+
   const [formData, setFormData] = useState({
     username: "",
     display_name: "",
@@ -60,6 +63,12 @@ export default function ProfilePage() {
   useEffect(() => {
     loadProfile();
   }, []);
+
+  useEffect(() => {
+    if (initialData) {
+      setIsDirty(JSON.stringify(formData) !== JSON.stringify(initialData));
+    }
+  }, [formData, initialData]);
 
   const loadProfile = async () => {
     try {
@@ -83,7 +92,7 @@ export default function ProfilePage() {
       if (error && error.code !== "PGRST116") throw error;
 
       if (profile) {
-        setFormData({
+        const data = {
           username: profile.username || "",
           display_name: profile.display_name || "",
           bio: profile.bio || "",
@@ -92,7 +101,9 @@ export default function ProfilePage() {
           preferred_travel_style: profile.preferred_travel_style || "Balanced",
           time_zone: profile.time_zone || "UTC",
           avatar_object_path: profile.avatar_object_path || "",
-        });
+        };
+        setFormData(data);
+        setInitialData(data);
 
         if (profile.updated_at) {
           setLastUpdated(
@@ -142,6 +153,8 @@ export default function ProfilePage() {
           year: "numeric",
         }),
       );
+      setInitialData(formData);
+      setIsDirty(false);
       toast.success("Profile updated successfully");
       router.refresh();
     } catch (error) {
@@ -196,6 +209,7 @@ export default function ProfilePage() {
       }
 
       setFormData((prev) => ({ ...prev, avatar_object_path: filePath }));
+      setInitialData((prev: any) => (prev ? { ...prev, avatar_object_path: filePath } : null));
       setAvatarUrl(publicUrlWithBust);
       setLastUpdated(
         new Date(now).toLocaleDateString("en-US", {
@@ -614,30 +628,32 @@ export default function ProfilePage() {
       </Fade>
 
       {/* Section 8: Save Changes Sticky Bar */}
-      <div className="border-border/40 bg-background/80 fixed bottom-0 left-0 right-0 z-50 border-t p-4 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.3)] backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <p className="text-muted-foreground hidden text-sm sm:block">
-            You have unsaved changes to your profile.
-          </p>
-          <div className="flex w-full justify-end sm:w-auto">
-            <Button
-              variant="default"
-              size="lg"
-              onClick={handleSave}
-              disabled={isSaving}
-              className="shadow-glow text-md w-full rounded-full px-10 font-semibold sm:w-auto"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="mr-2 size-5 animate-spin" /> Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </Button>
+      {isDirty && (
+        <div className="border-border/40 bg-background/80 fixed bottom-0 left-0 right-0 z-50 border-t p-4 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+          <div className="mx-auto flex max-w-5xl items-center justify-between">
+            <p className="text-muted-foreground hidden text-sm sm:block">
+              You have unsaved changes to your profile.
+            </p>
+            <div className="flex w-full justify-end sm:w-auto">
+              <Button
+                variant="default"
+                size="lg"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="shadow-glow text-md w-full rounded-full px-10 font-semibold sm:w-auto"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 size-5 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
