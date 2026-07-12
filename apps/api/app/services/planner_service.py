@@ -36,14 +36,24 @@ class MockPlannerService:
             hotels=[
                 HotelRecommendation(
                     name="Keio Plaza Hotel",
-                    location="City Center",
-                    meta="★ 4.5 • $180/night",
+                    address="2-2-1 Nishi-Shinjuku, Shinjuku, Tokyo",
+                    imageQuery="Keio Plaza Hotel Tokyo exterior",
+                    bookingQuery="Keio Plaza Hotel Tokyo",
+                    summary="A premier luxury hotel in Shinjuku with stunning city views.",
+                    price="~$180/night",
+                    tag="Luxury",
+                    meta="★ 4.5",
                     bestMatch=True,
                 ),
                 HotelRecommendation(
                     name="The Knot Boutique",
-                    location="Downtown",
-                    meta="★ 4.3 • $140/night",
+                    address="4-31-1 Nishi-Shinjuku, Shinjuku, Tokyo",
+                    imageQuery="The Knot Tokyo Shinjuku hotel",
+                    bookingQuery="The Knot Tokyo Shinjuku",
+                    summary="A stylish boutique hotel featuring a popular bakery and park views.",
+                    price="~$140/night",
+                    tag="Boutique",
+                    meta="★ 4.3",
                     bestMatch=False,
                 ),
             ],
@@ -125,6 +135,13 @@ class GeminiPlannerService:
             "realistic, and highly appealing travel itinerary based on the user's preferences. "
             "You must output JSON that strictly matches the required schema. Ensure the response is rich in detail, "
             "uses engaging language, and includes realistic estimated prices where applicable.\n\n"
+            "HOTEL RECOMMENDATIONS LOGIC:\n"
+            "- Recommend real, highly-rated hotels.\n"
+            "- Provide a highly specific `imageQuery` (e.g. 'Faena Hotel Miami Beach exterior') that can be used to search Wikipedia/Images.\n"
+            "- Provide a specific `bookingQuery` (e.g. 'Faena Hotel Miami Beach') that will yield good results on Google Hotels.\n"
+            "- Include a short, engaging `summary` of the hotel.\n"
+            "- Include a realistic `price` (e.g. '~$250/night').\n"
+            "- Include a descriptive `tag` (e.g. 'Luxury', 'Budget', 'Family', 'Boutique').\n\n"
             "FLIGHT RECOMMENDATIONS LOGIC:\n"
             "- Recommend airlines that realistically operate or partner on routes between the user's departure city and destination.\n"
             "- Generate both an 'Outbound Flight' and a 'Return Flight'.\n"
@@ -166,7 +183,9 @@ class GeminiPlannerService:
                     status_code=500, detail="AI returned an empty response."
                 )
 
-            return TripPlanResponse.model_validate_json(response.text)
+            plan = TripPlanResponse.model_validate_json(response.text)
+
+            return plan
 
         except ValidationError as e:
             print("Validation error on AI response:", e)

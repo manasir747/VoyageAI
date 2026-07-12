@@ -154,7 +154,9 @@ export const ItineraryPDF = ({ data }: { data: TripPlanResponse }) => (
             {data.hotels.map((h: any, i: number) => (
               <View key={i} style={styles.card}>
                 <Text style={styles.cardTitle}>{h.name}</Text>
-                <Text style={styles.cardText}>{h.location}</Text>
+                <Text style={styles.cardText}>{h.address}</Text>
+                {h.summary && <Text style={styles.cardText}>{h.summary}</Text>}
+                {h.price && <Text style={styles.cardText}>{h.price}</Text>}
               </View>
             ))}
           </View>

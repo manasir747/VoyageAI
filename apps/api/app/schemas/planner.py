@@ -28,7 +28,13 @@ class DayPlan(BaseModel):
 
 class HotelRecommendation(BaseModel):
     name: str
-    location: str
+    address: str
+    imageQuery: str
+    bookingQuery: str
+    summary: str
+    price: str
+    tag: str
+    image_url: Optional[str] = None
     meta: Optional[str] = None
     bestMatch: bool = False
 

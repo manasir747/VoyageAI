@@ -24,7 +24,13 @@ export interface DayPlan {
 
 export interface HotelRecommendation {
   name: string;
-  location: string;
+  address: string;
+  imageQuery: string;
+  bookingQuery: string;
+  summary: string;
+  price: string;
+  tag: string;
+  image_url?: string;
   meta?: string;
   bestMatch?: boolean;
 }

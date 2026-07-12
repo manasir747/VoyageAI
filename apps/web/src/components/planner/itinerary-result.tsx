@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { InteractiveCard, GlassCard } from "@/components/ui/card";
 import { Reveal, Fade } from "@/components/motion/motion";
 import {
@@ -112,6 +112,125 @@ const ActivityCard = ({ act, isLast }: { act: any; isLast: boolean }) => {
     </div>
   );
 };
+
+import { HotelRecommendation } from "@/types/planner";
+
+function HotelCard({ hotel, destination }: { hotel: HotelRecommendation; destination: string }) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fallbackUrl =
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000&auto=format&fit=crop";
+
+    const fetchImage = async () => {
+      try {
+        const query1 = `${hotel.name} ${hotel.address || destination}`;
+        const query2 = `luxury hotel ${destination}`;
+
+        const fetchWiki = async (q: string) => {
+          const res = await fetch(
+            `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(
+              q,
+            )}&gsrnamespace=0&gsrlimit=3&prop=pageimages&format=json&pithumbsize=800&origin=*`,
+          );
+          const data = await res.json();
+          if (data.query?.pages) {
+            const pages = Object.values(data.query.pages) as any[];
+            // find first page with an image
+            const pageWithImage = pages.find((p) => p.thumbnail?.source);
+            if (pageWithImage) return pageWithImage.thumbnail.source;
+          }
+          return null;
+        };
+
+        // Priority 1: Exact hotel name + location
+        let img = await fetchWiki(query1);
+
+        // Priority 2: Destination luxury hotel
+        if (!img) {
+          img = await fetchWiki(query2);
+        }
+
+        if (isMounted) {
+          setImageUrl(img || fallbackUrl);
+        }
+      } catch (err) {
+        if (isMounted) setImageUrl(fallbackUrl);
+      }
+    };
+
+    fetchImage();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [hotel, destination]);
+
+  const bookingUrl = `https://www.google.com/travel/hotels?q=${encodeURIComponent(hotel.bookingQuery || hotel.name)}`;
+
+  return (
+    <InteractiveCard className="border-border/40 flex h-full flex-col overflow-hidden p-0">
+      <div className="bg-muted relative h-48 w-full shrink-0">
+        {imageUrl && !imageError ? (
+          <img
+            src={imageUrl}
+            alt={hotel.name}
+            className="h-full w-full object-cover"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            {imageUrl ? (
+              <Hotel className="text-muted-foreground size-10" />
+            ) : (
+              <Hotel className="text-muted-foreground size-10 animate-pulse" />
+            )}
+          </div>
+        )}
+        {hotel.bestMatch && (
+          <div className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-md">
+            Top Pick
+          </div>
+        )}
+        {hotel.tag && (
+          <div className="absolute right-4 top-4 rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-md">
+            {hotel.tag}
+          </div>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col p-6">
+        <h4 className="mb-2 line-clamp-2 text-xl font-bold leading-tight">{hotel.name}</h4>
+        <div className="text-muted-foreground mb-2 flex items-start gap-1.5 text-sm">
+          <MapPin className="mt-0.5 size-4 shrink-0" />
+          <span className="line-clamp-2 flex-1 break-words">{hotel.address}</span>
+        </div>
+        {hotel.meta && (
+          <p className="text-warning mb-2 flex shrink-0 items-center gap-1 text-sm font-semibold">
+            <Star className="size-3.5" /> {hotel.meta}
+          </p>
+        )}
+        {hotel.summary && (
+          <p className="text-muted-foreground mb-4 text-sm leading-relaxed">{hotel.summary}</p>
+        )}
+        <div className="border-border/30 mt-auto flex items-center justify-between border-t pt-4">
+          <span className="text-foreground shrink-0 text-sm font-bold">
+            {hotel.price || "Price varies"}
+          </span>
+          <Button
+            variant="default"
+            size="sm"
+            className="shrink-0 font-semibold shadow-sm transition-shadow hover:shadow-md"
+            onClick={() => window.open(bookingUrl, "_blank", "noopener,noreferrer")}
+          >
+            View Details
+          </Button>
+        </div>
+      </div>
+    </InteractiveCard>
+  );
+}
 
 export function ItineraryResult({
   data,
@@ -513,44 +632,9 @@ export function ItineraryResult({
                           <h3 className="font-display flex items-center gap-3 text-3xl font-bold">
                             <Hotel className="text-primary size-8" /> Where to Stay
                           </h3>
-                          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                          <div className="grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2">
                             {data.hotels.map((hotel, idx: number) => (
-                              <InteractiveCard
-                                key={idx}
-                                className="border-border/40 flex flex-col overflow-hidden p-0"
-                              >
-                                <div className="bg-muted relative h-48 w-full">
-                                  <img
-                                    src={`https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000&auto=format&fit=crop`}
-                                    alt="Hotel"
-                                    className="h-full w-full object-cover"
-                                  />
-                                  {hotel.bestMatch && (
-                                    <div className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-md">
-                                      Top Pick
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="flex flex-1 flex-col p-6">
-                                  <h4 className="mb-2 text-xl font-bold leading-tight">
-                                    {hotel.name}
-                                  </h4>
-                                  <p className="text-muted-foreground mb-4 flex items-center gap-1.5 text-sm">
-                                    <MapPin className="size-4" /> {hotel.location}
-                                  </p>
-                                  {hotel.meta && (
-                                    <p className="text-foreground/80 mb-6 text-sm">{hotel.meta}</p>
-                                  )}
-                                  <div className="border-border/30 mt-auto flex items-center justify-between border-t pt-4">
-                                    <span className="text-muted-foreground text-sm font-bold">
-                                      Price varies
-                                    </span>
-                                    <Button variant="secondary" size="sm" className="font-semibold">
-                                      View Details
-                                    </Button>
-                                  </div>
-                                </div>
-                              </InteractiveCard>
+                              <HotelCard key={idx} hotel={hotel} destination={data.destination} />
                             ))}
                           </div>
                         </div>
