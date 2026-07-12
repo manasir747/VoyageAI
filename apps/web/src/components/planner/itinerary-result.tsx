@@ -195,7 +195,7 @@ export function ItineraryResult({
     : [];
 
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center px-4 py-8">
+    <div className="relative flex min-h-full w-full flex-col items-center px-4 py-8">
       {/* Pre-modal compact preview */}
       <Reveal className="z-10 w-full max-w-xl">
         <div className="flex flex-col gap-6">

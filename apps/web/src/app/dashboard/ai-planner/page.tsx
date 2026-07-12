@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Fade } from "@/components/motion/motion";
 import { PlannerForm } from "@/components/planner/planner-form";
 import { PlannerLoading } from "@/components/planner/planner-loading";
@@ -26,6 +26,14 @@ export default function AIPlannerPage() {
   const tripId = searchParams.get("tripId");
   const supabase = createClient();
   const router = useRouter();
+
+  const resultsScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && resultsScrollRef.current) {
+      resultsScrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [status]);
 
   useEffect(() => {
     if (tripId) {
@@ -105,7 +113,10 @@ export default function AIPlannerPage() {
         </Fade>
 
         {/* Right Column: Output */}
-        <div className="custom-scrollbar relative h-full w-full flex-1 overflow-y-auto pb-8 pl-2 pr-2">
+        <div
+          ref={resultsScrollRef}
+          className="custom-scrollbar relative h-full w-full flex-1 overflow-y-auto pb-8 pl-2 pr-2"
+        >
           <AnimatePresence mode="wait">
             {status === "idle" && (
               <motion.div
