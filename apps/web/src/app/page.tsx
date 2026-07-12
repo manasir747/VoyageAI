@@ -220,11 +220,13 @@ export default function LandingPage() {
                   </Fade>
                   <Fade>
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                      <Button variant="default" size="lg" className="w-full sm:w-auto">
-                        Plan My Trip
+                      <Button asChild variant="default" size="lg" className="w-full sm:w-auto">
+                        <Link href="/sign-up">Plan My Trip</Link>
                       </Button>
-                      <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                        Explore Features
+                      <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+                        <a href="#features" onClick={() => setActivePath("#features")}>
+                          Explore Features
+                        </a>
                       </Button>
                     </div>
                   </Fade>
