@@ -151,13 +151,7 @@ npm run dev
 
 ---
 
-## 📸 Screenshots
 
-| Dashboard | AI Planner | Generated Itinerary |
-|:---:|:---:|:---:|
-| ![Dashboard](path/to/dashboard.png) | ![AI Planner](path/to/planner.png) | ![Itinerary](path/to/itinerary.png) |
-
----
 
 ## 🔮 Future Improvements
 
@@ -170,6 +164,3 @@ npm run dev
 
 ---
 
-<div align="center">
-  <i>Built with ❤️ for modern travelers.</i>
-</div>
