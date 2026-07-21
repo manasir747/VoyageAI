@@ -1,156 +1,117 @@
+<div align="center">
+
 # 🌍 VoyageAI
 
-A modern AI-powered travel planning platform that generates intelligent travel itineraries, recommends flights, hotels, restaurants, attractions, budgets, and personalized experiences.
+**Your Intelligent Travel Companion**
+
+VoyageAI is a modern, AI-powered travel planning platform designed to generate intelligent, personalized itineraries. It seamlessly recommends flights, hotels, restaurants, and attractions while estimating budgets and tailoring experiences to your unique travel style.
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" alt="Vercel" />
+  <img src="https://img.shields.io/badge/Render-46E3B7?style=flat-square&logo=render&logoColor=white" alt="Render" />
+</p>
+
+![App Screenshot Placeholder](path/to/hero_screenshot.png)
+
+</div>
 
 ---
 
-## ✨ Features
+## 📑 Table of Contents
+- [Project Highlights](#-project-highlights)
+- [Key Features](#-key-features)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Installation](#-installation)
+- [Environment Variables](#-environment-variables)
+- [Future Improvements](#-future-improvements)
 
-### Landing Page
-- Modern animated landing page
-- Responsive design
-- Theme switching
-- Hero section
-- Features section
-- How It Works section
-- Pricing section
-- About section
-- Smooth scrolling navigation
-- Authentication CTA
+---
 
-### Authentication
-- Sign Up
-- Sign In
-- Email verification
-- Supabase authentication
-- Protected dashboard
+## ✨ Project Highlights
 
-### Dashboard
-- Modern sidebar
-- Search bar
-- User profile
-- Responsive layout
+✔ **AI-powered itinerary generation** tailored to your budget and travel style.  
+✔ **Live weather forecasts** integrated directly into your travel plans.  
+✔ **Smart recommendations** for hotels and flights based on real-world data.  
+✔ **Interactive dashboard** to manage saved trips and view travel statistics.  
+✔ **Beautiful responsive UI** built with modern glassmorphism and animations.  
 
-### AI Trip Planner
-- Destination selection
-- Departure city selection
-- Travel dates
-- Budget
-- Number of travellers
-- Travel style
-- AI itinerary generation
-- Budget estimation
-- Attraction recommendations
-- Hotel recommendations
-- Flight recommendations
-- Restaurant recommendations
-- Weather forecast
-- Day-wise itinerary
-- Save Trip
-- Export PDF
-- View Full Itinerary
+---
 
-### Flight Recommendations
-- Travel-style-aware airline recommendations
-- Airline details
-- Flight timing information
-- Booking redirection
+## 🚀 Key Features
 
-### Hotel Recommendations
-- Real hotel recommendations
-- Hotel information
-- Estimated pricing
-- Booking page redirection
+### 🤖 AI Planning
+- Personalized itineraries & day-wise plans
+- Budget estimation based on travel style
+- Smart attraction recommendations
 
-### Dining Recommendations
-- Real restaurant recommendations
-- Ratings
-- Cuisine
-- Google Maps integration
+### ✈️ Travel Integrations
+- Context-aware flight recommendations
+- Real hotel & dining recommendations
+- Live weather forecasts
 
-### Weather
-- Live weather forecast
-- Multi-day forecast
-- Destination-based weather
+### 🔐 Security & Auth
+- Secure login & email verification via Supabase
+- Protected user dashboard & session management
+- Personalized user profiles
 
-### User Profile
-- Premium profile page
-- Editable profile
-- Avatar
-- Travel preferences
-- Travel personality
-- Profile completion
-- Statistics
-- Sticky save bar
-
-### Additional Features
-- Dark mode
-- Responsive UI
-- Animations
-- Glassmorphism design
-- Modern component system
-- Reusable design system
+### 🎨 Modern UI/UX
+- Responsive design & dark mode support
+- Smooth animations (Framer Motion)
+- Glassmorphism aesthetic & centralized design system
 
 ---
 
 ## 💻 Tech Stack
 
-### Frontend
-- Next.js
-- React
-- TypeScript
-- TailwindCSS
-- ShadCN UI
-- Framer Motion
-
-### Backend
-- FastAPI
-- Python
-
-### Database
-- Supabase
-
-### Authentication
-- Supabase Auth
-
-### Deployment
-- Vercel (Frontend)
-- Render (Backend)
-
-### Version Control
-- GitHub
+| Layer | Technologies |
+| --- | --- |
+| **Frontend** | Next.js, React, TypeScript, TailwindCSS, ShadCN UI, Framer Motion |
+| **Backend** | FastAPI, Python |
+| **Database** | Supabase (PostgreSQL) |
+| **Auth** | Supabase Auth |
+| **Deployment** | Vercel (Frontend), Render (Backend) |
 
 ---
 
 ## 📁 Project Structure
 
-This repository is structured as a modern monorepo:
-
-- `apps/web`: The Next.js frontend application containing UI, routing, and presentation logic.
-- `apps/api`: The FastAPI Python backend handling AI generation and business logic.
-- `docker`: Configurations for environment parity.
+```text
+voyageai/
+├── apps/
+│   ├── web/                # Next.js Frontend Application
+│   │   ├── src/app/        # App Router Pages (Dashboard, Planner, Auth)
+│   │   ├── src/components/ # Reusable UI components & Design System
+│   │   └── src/lib/        # Supabase clients and utility functions
+│   └── api/                # FastAPI Python Backend
+│       ├── app/api/        # API Routes (v1)
+│       ├── app/schemas/    # Pydantic Models for AI generation
+│       └── app/services/   # Gemini AI and business logic
+├── docker/                 # Local development & production configurations
+└── package.json            # Monorepo workspaces configuration
+```
 
 ---
 
-## 🚀 Installation
+## ⚙️ Installation
 
-### 1. Clone the repository
+### 1. Clone & Install
 ```bash
 git clone https://github.com/manasir747/VoyageAI.git
 cd voyageai
-```
-
-### 2. Install dependencies
-From the root of the project:
-```bash
 npm install
 ```
 
-### 3. Setup Environment Variables
-Configure your environment variables as detailed in the **Environment Variables** section below.
+### 2. Configure Environment Variables
+Set up your `.env` files in both the frontend and backend directories (see [Environment Variables](#-environment-variables)).
 
-### 4. Setup the Backend
-Navigate to the API app and set up your Python environment:
+### 3. Setup Backend
 ```bash
 cd apps/api
 python3 -m venv venv
@@ -158,74 +119,57 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 5. Run the Application
-You can run the entire stack concurrently from the root directory:
+### 4. Run Application
+Run both frontend and backend concurrently from the root directory:
 ```bash
 npm run dev
 ```
-
-Alternatively, to run the services individually:
-- **Backend**: `cd apps/api && source venv/bin/activate && uvicorn app.main:app --reload`
-- **Frontend**: `npm run dev:web`
 
 ---
 
 ## 🔑 Environment Variables
 
-The project requires the following environment variables.
-
 ### Frontend (`apps/web/.env.local`)
-```env
-NEXT_PUBLIC_APP_NAME=VoyageAI
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-API_URL=http://localhost:8000
-```
+| Variable | Description |
+| --- | --- |
+| `NEXT_PUBLIC_APP_NAME` | Application name (VoyageAI) |
+| `NEXT_PUBLIC_API_BASE_URL` | Backend URL (e.g., `http://localhost:8000`) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anonymous key |
+| `API_URL` | Internal API URL (`http://localhost:8000`) |
 
 ### Backend (`apps/api/.env`)
-```env
-APP_NAME="VoyageAI API"
-APP_ENV=development
-APP_DEBUG=true
-APP_HOST=0.0.0.0
-APP_PORT=8000
-API_V1_PREFIX=/api/v1
-CORS_ORIGINS=http://localhost:3000
-GEMINI_API_KEY=your_gemini_api_key
-```
+| Variable | Description |
+| --- | --- |
+| `APP_NAME` | API Name |
+| `APP_ENV` | Environment (`development` or `production`) |
+| `APP_DEBUG` | Debug mode (`true` or `false`) |
+| `APP_HOST` / `APP_PORT` | Server binding (e.g., `0.0.0.0` / `8000`) |
+| `API_V1_PREFIX` | Route prefix (`/api/v1`) |
+| `CORS_ORIGINS` | Allowed frontend origins |
+| `GEMINI_API_KEY` | Google Gemini API Key for itinerary generation |
 
 ---
 
 ## 📸 Screenshots
 
-| Landing Page | Dashboard |
-|:---:|:---:|
-| ![Landing Page](path/to/landing_page_screenshot.png) <br> *The modern animated landing page.* | ![Dashboard](path/to/dashboard_screenshot.png) <br> *Your central hub for travel planning.* |
-
-| AI Planner | Generated Itinerary |
-|:---:|:---:|
-| ![AI Planner](path/to/ai_planner_screenshot.png) <br> *Intelligent trip generation form.* | ![Generated Itinerary](path/to/itinerary_screenshot.png) <br> *Comprehensive travel plans at a glance.* |
-
-| Profile | |
-|:---:|:---:|
-| ![Profile](path/to/profile_screenshot.png) <br> *Manage your travel preferences and personality.* | |
+| Dashboard | AI Planner | Generated Itinerary |
+|:---:|:---:|:---:|
+| ![Dashboard](path/to/dashboard.png) | ![AI Planner](path/to/planner.png) | ![Itinerary](path/to/itinerary.png) |
 
 ---
 
 ## 🔮 Future Improvements
 
-- Live flight APIs
-- Live hotel image APIs
-- Calendar integration
-- Offline itineraries
-- AI chat assistant
-- Expense tracking
-- Multi-language support
-- Collaborative trip planning
+- Live flight & hotel booking APIs integration.
+- Calendar syncing (Google Calendar / Apple Calendar).
+- Offline itinerary access via PWA.
+- Interactive AI chat assistant for trip modifications.
+- Multi-language support and currency conversion.
+- Collaborative trip planning with friends.
 
 ---
 
-## 📄 License
-
-This project is licensed under the terms provided in the repository.
+<div align="center">
+  <i>Built with ❤️ for modern travelers.</i>
+</div>
