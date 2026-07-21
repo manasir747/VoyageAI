@@ -11,7 +11,7 @@ import { Input, PasswordInput } from "@/components/ui/inputs";
 import { Button } from "@/components/ui/button";
 import { Fade } from "@/components/motion/motion";
 import { createClient } from "@/lib/supabase/browser";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 const signUpSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -25,6 +25,7 @@ export default function SignUpPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [requireEmailVerification, setRequireEmailVerification] = useState(false);
   const supabase = createClient();
 
   const {
@@ -39,7 +40,7 @@ export default function SignUpPage() {
     setError(null);
     setSuccess(false);
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
@@ -55,13 +56,15 @@ export default function SignUpPage() {
       return;
     }
 
-    // Usually Supabase requires email verification unless auto confirm is enabled.
-    // If auto confirm is enabled, they are signed in immediately.
+    const needsVerification = signUpData.user && !signUpData.session;
+    setRequireEmailVerification(!!needsVerification);
     setSuccess(true);
-    setTimeout(() => {
-      router.push("/dashboard");
-      router.refresh();
-    }, 2000);
+
+    if (!needsVerification) {
+      setTimeout(() => {
+        router.push("/sign-in");
+      }, 3000);
+    }
   };
 
   return (
@@ -80,12 +83,43 @@ export default function SignUpPage() {
         )}
 
         {success ? (
-          <div className="bg-success/10 text-success border-success/20 rounded-lg border p-6 text-center">
-            <h3 className="mb-2 font-semibold">Account created successfully!</h3>
-            <p className="text-sm">
-              Please check your email to verify your account if required, or wait to be redirected.
-            </p>
-          </div>
+          <Fade className="flex flex-col items-center justify-center py-6 text-center">
+            <div className="bg-primary/10 mb-6 rounded-full p-4">
+              <CheckCircle className="text-primary size-16" />
+            </div>
+            <h1 className="font-display mb-4 text-2xl font-bold tracking-tight">
+              Account Created Successfully!
+            </h1>
+
+            {requireEmailVerification ? (
+              <>
+                <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
+                  Please verify your email before signing in.
+                </p>
+                <Button className="shadow-glow w-full" onClick={() => router.push("/sign-in")}>
+                  Back to Sign In
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
+                  Your VoyageAI account has been created successfully.
+                  <br />
+                  You will be redirected to the Sign In page in a few seconds.
+                </p>
+                <div className="text-muted-foreground text-sm">
+                  If you are not redirected automatically,{" "}
+                  <button
+                    onClick={() => router.push("/sign-in")}
+                    className="text-primary font-medium hover:underline"
+                  >
+                    click here
+                  </button>{" "}
+                  to sign in.
+                </div>
+              </>
+            )}
+          </Fade>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
@@ -138,12 +172,14 @@ export default function SignUpPage() {
           </form>
         )}
 
-        <div className="text-muted-foreground mt-8 text-center text-sm">
-          Already have an account?{" "}
-          <Link href="/sign-in" className="text-primary font-medium hover:underline">
-            Sign in
-          </Link>
-        </div>
+        {!success && (
+          <div className="text-muted-foreground mt-8 text-center text-sm">
+            Already have an account?{" "}
+            <Link href="/sign-in" className="text-primary font-medium hover:underline">
+              Sign in
+            </Link>
+          </div>
+        )}
       </GlassCard>
     </Fade>
   );
