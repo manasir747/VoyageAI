@@ -23,23 +23,6 @@ VoyageAI is a next-generation travel platform that transforms the way you plan y
 
 </div>
 
----
-
-## 📸 Experience VoyageAI
-
-| Landing Page | Dashboard |
-|:---:|:---:|
-| ![Landing Page](path/to/landing_page_placeholder.png) | ![Dashboard](path/to/dashboard_placeholder.png) |
-
-| AI Trip Planner | Generated Itinerary |
-|:---:|:---:|
-| ![AI Trip Planner](path/to/ai_planner_placeholder.png) | ![Generated Itinerary](path/to/itinerary_placeholder.png) |
-
-| Profile | Authentication |
-|:---:|:---:|
-| ![Profile](path/to/profile_placeholder.png) | ![Authentication](path/to/auth_placeholder.png) |
-
----
 
 ## ✈️ About VoyageAI
 
